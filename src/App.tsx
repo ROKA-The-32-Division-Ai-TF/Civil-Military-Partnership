@@ -1,5 +1,6 @@
 import {
   Activity,
+  ArrowRight,
   Boxes,
   CheckCircle2,
   CircleUserRound,
@@ -11,6 +12,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { AnalysisPanel } from './components/AnalysisPanel';
 import { ActionChecklist } from './components/ActionChecklist';
 import { DocumentModal } from './components/DocumentModal';
+import { DocumentWorkspace } from './components/DocumentWorkspace';
 import { MapBoard } from './components/MapBoard';
 import { ProcessFlow } from './components/ProcessFlow';
 import { RequestComposer } from './components/RequestComposer';
@@ -77,16 +79,43 @@ const operatorModes = [
   },
 ];
 
-const sectionTargets: Record<string, string> = {
-  dashboard: 'dashboard',
-  requests: 'request-intake',
-  analysis: 'analysis-panel',
-  resources: 'resource-panel',
-  cases: 'similar-cases',
-  documents: 'analysis-panel',
-  performance: 'process-flow',
-  alerts: 'action-checklist',
-  settings: 'dashboard',
+const viewMeta: Record<string, { title: string; description: string }> = {
+  dashboard: {
+    title: '업무 홈',
+    description: '요청을 선택하고 다음 조치를 바로 실행합니다.',
+  },
+  requests: {
+    title: '협업 요청 관리',
+    description: '새 요청을 입력하거나 기존 요청을 검색합니다.',
+  },
+  analysis: {
+    title: 'AI 분석 & 추천',
+    description: '선택 요청의 위치, 필요 자원, 협업기관을 확인합니다.',
+  },
+  resources: {
+    title: '자원·지원 관리',
+    description: '추천 자원을 요청하고 실행 준비 상태를 체크합니다.',
+  },
+  cases: {
+    title: '유사사례 검색',
+    description: '과거 사례를 확인해 판단 근거를 빠르게 확보합니다.',
+  },
+  documents: {
+    title: '공문·계획서 작성',
+    description: '협조공문, 지원계획서, 결과보고서 초안을 확인합니다.',
+  },
+  performance: {
+    title: '성과 관리',
+    description: '협업 절차와 성과 지표를 확인합니다.',
+  },
+  alerts: {
+    title: '알림 센터',
+    description: '실행 전 확인해야 할 조치와 회신 상태를 점검합니다.',
+  },
+  settings: {
+    title: '시스템 설정',
+    description: '운용자 관점과 데모 데이터를 조정합니다.',
+  },
 };
 
 const generatedPositions: Record<Category, Array<{ mapX: number; mapY: number }>> = {
@@ -358,22 +387,6 @@ function App() {
 
   const handleMenuSelect = useCallback((menuId: string) => {
     setActiveMenu(menuId);
-
-    if (menuId === 'documents') {
-      setDocumentOpen(true);
-    }
-
-    const target = sectionTargets[menuId];
-    if (!target) {
-      return;
-    }
-
-    window.requestAnimationFrame(() => {
-      document.getElementById(target)?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    });
   }, []);
 
   const handleCreateRequest = useCallback((input: RequestDraftInput) => {
@@ -413,12 +426,6 @@ function App() {
     }));
     setSelectedRequestId(requestId);
     setActiveMenu('analysis');
-    window.requestAnimationFrame(() => {
-      document.getElementById('analysis-panel')?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    });
   }, [requests.length]);
 
   const handleToggleChecklistItem = useCallback(
@@ -440,158 +447,314 @@ function App() {
 
   const currentOperator =
     operatorModes.find((mode) => mode.id === activeOperator) ?? operatorModes[0];
+  const page = viewMeta[activeMenu] ?? viewMeta.dashboard;
+
+  const resetDemo = () => {
+    setRequests(collaborationRequests);
+    setRecommendations(resourceRecommendations);
+    setSelectedRequestId(collaborationRequests[0].id);
+    setResourceStatuses({});
+    setChecklistState({});
+    setActiveMenu('dashboard');
+  };
+
+  const dashboardView = (
+    <div className="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_420px]">
+      <section className="rounded-lg border border-white bg-white/[0.94] p-5 shadow-panel">
+        <div className="flex flex-col gap-4 border-b border-slate-100 pb-4 md:flex-row md:items-start md:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
+              Current Request
+            </p>
+            <h2 className="mt-2 text-2xl font-bold leading-tight text-civicNavy">
+              {selectedRequest.title}
+            </h2>
+            <p className="mt-2 text-sm text-slate-500">
+              {selectedRequest.requester} · {selectedRequest.location} · {selectedRequest.date}
+            </p>
+          </div>
+          <span className="w-fit rounded-full bg-[#EAF4EF] px-3 py-1 text-xs font-bold text-publicGreen">
+            {selectedRequest.status}
+          </span>
+        </div>
+
+        <div className="mt-5 grid gap-3 md:grid-cols-3">
+          {[
+            {
+              title: 'AI 분석 보기',
+              detail: '요약과 협업기관 확인',
+              target: 'analysis',
+            },
+            {
+              title: '자원 요청',
+              detail: '추천 자원 상태 변경',
+              target: 'resources',
+            },
+            {
+              title: '문서 작성',
+              detail: '공문·계획서 초안 확인',
+              target: 'documents',
+            },
+          ].map((item) => (
+            <button
+              key={item.title}
+              type="button"
+              onClick={() => setActiveMenu(item.target)}
+              className="group rounded-lg border border-slate-200 bg-porcelain p-4 text-left transition hover:-translate-y-0.5 hover:border-publicGreen hover:bg-white hover:shadow-md"
+            >
+              <span className="block text-sm font-bold text-civicNavy">{item.title}</span>
+              <span className="mt-1 block text-xs leading-5 text-slate-500">{item.detail}</span>
+              <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-publicGreen">
+                열기
+                <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+              </span>
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          {dynamicStats.map((stat) => (
+            <StatCard key={stat.label} {...stat} />
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-lg border border-white bg-white/[0.94] p-5 shadow-panel">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
+              Queue
+            </p>
+            <h2 className="mt-2 text-lg font-bold text-civicNavy">최근 요청</h2>
+          </div>
+          <button
+            type="button"
+            onClick={() => setActiveMenu('requests')}
+            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-civicNavy transition hover:border-publicGreen hover:text-publicGreen"
+          >
+            전체 보기
+          </button>
+        </div>
+        <div className="mt-4 grid gap-2">
+          {requests.slice(0, 5).map((request) => (
+            <button
+              key={request.id}
+              type="button"
+              onClick={() => setSelectedRequestId(request.id)}
+              className={`rounded-lg border p-3 text-left transition ${
+                selectedRequest.id === request.id
+                  ? 'border-publicGreen bg-[#F4FAF7]'
+                  : 'border-slate-200 bg-porcelain hover:bg-white'
+              }`}
+            >
+              <span className="block text-sm font-bold text-civicNavy">{request.title}</span>
+              <span className="mt-1 block text-xs text-slate-500">
+                {request.requester} · {request.status}
+              </span>
+            </button>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+
+  const requestView = (
+    <div className="grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+      <RequestComposer onCreateRequest={handleCreateRequest} />
+      <RequestTable
+        requests={requests}
+        selectedRequestId={selectedRequest.id}
+        onSelectRequest={setSelectedRequestId}
+      />
+    </div>
+  );
+
+  const analysisView = (
+    <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
+      <MapBoard
+        requests={requests}
+        selectedRequestId={selectedRequest.id}
+        onSelectRequest={setSelectedRequestId}
+      />
+      <AnalysisPanel request={selectedRequest} onOpenDocument={() => setDocumentOpen(true)} />
+    </div>
+  );
+
+  const resourceView = (
+    <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+      <ResourcePanel
+        resources={selectedResources}
+        statuses={resourceStatuses}
+        onRequestSupport={handleSupportRequest}
+      />
+      <ActionChecklist
+        completedItems={checklistState[selectedRequest.id] ?? {}}
+        onToggleItem={handleToggleChecklistItem}
+      />
+    </div>
+  );
+
+  const performanceView = (
+    <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
+      <ProcessFlow
+        steps={processSteps}
+        activeStepId={activeStepId}
+        onStepSelect={setActiveStepId}
+      />
+      <section className="rounded-lg border border-white bg-white/[0.94] p-5 shadow-panel">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
+          Results
+        </p>
+        <h2 className="mt-2 text-lg font-bold text-civicNavy">성과 요약</h2>
+        <div className="mt-5 grid gap-3">
+          {[
+            ['평균 분석 시간', '2분 10초'],
+            ['문서 작성 절감', '약 70%'],
+            ['협업 만족도', '92점'],
+          ].map(([label, value]) => (
+            <div key={label} className="rounded-lg border border-slate-200 bg-porcelain p-4">
+              <p className="text-sm font-bold text-slate-500">{label}</p>
+              <p className="mt-2 text-2xl font-bold text-civicNavy">{value}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+
+  const alertView = (
+    <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+      <section className="rounded-lg border border-white bg-white/[0.94] p-5 shadow-panel">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
+          Notifications
+        </p>
+        <h2 className="mt-2 text-lg font-bold text-civicNavy">오늘 확인할 알림</h2>
+        <div className="mt-5 grid gap-3">
+          {[
+            ['협업기관 회신 대기', '추천 자원 1건의 지원 가능 여부 확인이 필요합니다.'],
+            ['안전조치 확인', '현장 통제선과 장비 접근로 확인 항목이 남아 있습니다.'],
+            ['문서 검토', '지원계획서 초안 확인 후 PDF 내보내기를 진행할 수 있습니다.'],
+          ].map(([title, detail]) => (
+            <div key={title} className="rounded-lg border border-slate-200 bg-porcelain p-4">
+              <p className="text-sm font-bold text-civicNavy">{title}</p>
+              <p className="mt-1 text-sm leading-6 text-slate-500">{detail}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+      <ActionChecklist
+        completedItems={checklistState[selectedRequest.id] ?? {}}
+        onToggleItem={handleToggleChecklistItem}
+      />
+    </div>
+  );
+
+  const settingsView = (
+    <section className="max-w-3xl rounded-lg border border-white bg-white/[0.94] p-5 shadow-panel">
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
+        Settings
+      </p>
+      <h2 className="mt-2 text-xl font-bold text-civicNavy">시연 환경 설정</h2>
+      <div className="mt-5 grid gap-4">
+        <div className="rounded-lg border border-slate-200 bg-porcelain p-4">
+          <p className="text-sm font-bold text-civicNavy">운용자 화면</p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {operatorModes.map((mode) => {
+              const ModeIcon = mode.icon;
+              const active = activeOperator === mode.id;
+
+              return (
+                <button
+                  key={mode.id}
+                  type="button"
+                  onClick={() => setActiveOperator(mode.id)}
+                  className={`flex items-center gap-3 rounded-lg border px-3 py-3 text-left transition ${
+                    active
+                      ? 'border-civicNavy bg-white text-civicNavy shadow-sm'
+                      : 'border-slate-200 bg-white text-slate-600 hover:border-publicGreen'
+                  }`}
+                >
+                  <ModeIcon className="h-5 w-5" />
+                  <span>
+                    <span className="block text-sm font-bold">{mode.label}</span>
+                    <span className="text-xs">{mode.description}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-slate-200 bg-porcelain p-4">
+          <p className="text-sm font-bold text-civicNavy">데모 데이터</p>
+          <p className="mt-1 text-sm leading-6 text-slate-500">
+            발표 중 생성한 요청, 체크리스트, 지원 요청 상태를 초기 상태로 되돌립니다.
+          </p>
+          <button
+            type="button"
+            onClick={resetDemo}
+            className="mt-4 rounded-lg bg-civicNavy px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#12395F]"
+          >
+            데모 초기화
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+
+  const activeView =
+    activeMenu === 'requests'
+      ? requestView
+      : activeMenu === 'analysis'
+        ? analysisView
+        : activeMenu === 'resources'
+          ? resourceView
+          : activeMenu === 'cases'
+            ? <SimilarCases request={selectedRequest} cases={similarCases} />
+            : activeMenu === 'documents'
+              ? <DocumentWorkspace request={selectedRequest} draft={documentDraft} />
+              : activeMenu === 'performance'
+                ? performanceView
+                : activeMenu === 'alerts'
+                  ? alertView
+                  : activeMenu === 'settings'
+                    ? settingsView
+                    : dashboardView;
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#F8FBFF_0%,#FBFCFA_38%,#F4F8F6_100%)] text-slate-900">
+    <div className="min-h-screen bg-[#F6F8FA] text-slate-900">
       <div className="flex min-h-screen flex-col lg:flex-row">
         <Sidebar activeMenu={activeMenu} onMenuSelect={handleMenuSelect} />
 
-        <main className="min-w-0 flex-1 px-4 py-5 sm:px-6 lg:px-8">
-          <header id="dashboard" className="scroll-mt-5 mb-6 overflow-hidden rounded-lg border border-white bg-white/90 shadow-panel backdrop-blur">
-            <div className="h-1 bg-[linear-gradient(90deg,#0B2B4C_0%,#1F7A5C_52%,#B98535_100%)]" />
-            <div className="grid gap-5 p-5 lg:grid-cols-[minmax(0,1fr)_360px] lg:p-6">
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-[#EAF4EF] px-3 py-1 text-xs font-bold text-publicGreen">
-                    공동 운용 콘솔
-                  </span>
-                  <span className="rounded-full border border-[#E7D8BB] bg-[#FFF8EA] px-3 py-1 text-xs font-bold text-[#8A641F]">
-                    데모 모드
-                  </span>
-                </div>
-                <h1 className="mt-4 text-3xl font-extrabold tracking-normal text-civicNavy sm:text-4xl">
-                  여민용비
-                  <span className="ml-2 align-middle text-xl font-bold text-slate-500">
-                    與民龍飛
-                  </span>
-                </h1>
-                <p className="mt-2 text-sm font-bold text-publicGreen">
-                  AI 기반 민·관·군 협업 의사결정 플랫폼
-                </p>
-                <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
-                  시민 요청을 선택하면 AI가 유사사례, 필요 자원, 협업기관,
-                  공문 초안을 한 화면에서 정리합니다.
-                </p>
-                <div className="mt-4 grid gap-2 sm:grid-cols-3">
-                  {['요청 선택', '지원 자원 확인', '공문 생성'].map((step, index) => (
-                    <div
-                      key={step}
-                      className="flex items-center gap-2 rounded-lg border border-slate-200 bg-porcelain px-3 py-2 text-sm font-bold text-civicNavy"
-                    >
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-publicGreen text-xs text-white">
-                        {index + 1}
-                      </span>
-                      {step}
-                    </div>
-                  ))}
+        <main className="min-w-0 flex-1 px-4 py-4 sm:px-6 lg:px-8">
+          <header className="mb-4 flex flex-col gap-3 rounded-lg border border-slate-200 bg-white px-4 py-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-publicGreen">
+                여민용비 · 데모 모드
+              </p>
+              <h1 className="mt-1 text-2xl font-bold text-civicNavy">{page.title}</h1>
+              <p className="mt-1 text-sm text-slate-500">{page.description}</p>
+            </div>
+
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-porcelain px-3 py-2">
+                <CircleUserRound className="h-5 w-5 text-publicGreen" aria-hidden="true" />
+                <div>
+                  <p className="text-sm font-bold text-civicNavy">{currentOperator.label}</p>
+                  <p className="text-xs text-slate-500">{currentOperator.description}</p>
                 </div>
               </div>
-
-              <div className="rounded-lg border border-slate-200 bg-[#F8FAF8] p-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-publicGreen shadow-sm">
-                    <CircleUserRound className="h-6 w-6" aria-hidden="true" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-civicNavy">
-                      {currentOperator.label}
-                    </p>
-                    <p className="text-xs text-slate-500">{currentOperator.description}</p>
-                  </div>
-                </div>
-
-                <div className="mt-4 grid grid-cols-2 gap-2 rounded-lg border border-slate-200 bg-white p-1">
-                  {operatorModes.map((mode) => {
-                    const ModeIcon = mode.icon;
-                    const active = activeOperator === mode.id;
-
-                    return (
-                      <button
-                        key={mode.id}
-                        type="button"
-                        onClick={() => setActiveOperator(mode.id)}
-                        className={`inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-bold transition ${
-                          active
-                            ? 'bg-civicNavy text-white shadow-sm'
-                            : 'text-slate-600 hover:bg-slate-50 hover:text-civicNavy'
-                        }`}
-                      >
-                        <ModeIcon className="h-4 w-4" aria-hidden="true" />
-                        {mode.label}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-                  <div className="rounded-lg bg-white px-3 py-2">
-                    <p className="font-bold text-civicNavy">승인 대기</p>
-                    <p className="mt-1 text-slate-500">3건</p>
-                  </div>
-                  <div className="rounded-lg bg-white px-3 py-2">
-                    <p className="font-bold text-civicNavy">오늘 추천</p>
-                    <p className="mt-1 text-slate-500">9건</p>
-                  </div>
-                </div>
-              </div>
+              <button
+                type="button"
+                onClick={() => setActiveMenu('requests')}
+                className="rounded-lg bg-civicNavy px-4 py-3 text-sm font-bold text-white transition hover:bg-[#12395F]"
+              >
+                새 요청 접수
+              </button>
             </div>
           </header>
 
-          <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {dynamicStats.map((stat) => (
-              <StatCard key={stat.label} {...stat} />
-            ))}
-          </section>
-
-          <section className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
-            <div className="grid min-w-0 gap-6">
-              <div id="request-intake" className="scroll-mt-5">
-                <RequestComposer onCreateRequest={handleCreateRequest} />
-              </div>
-              <MapBoard
-                requests={requests}
-                selectedRequestId={selectedRequest.id}
-                onSelectRequest={setSelectedRequestId}
-              />
-              <div id="process-flow" className="scroll-mt-5">
-                <ProcessFlow
-                  steps={processSteps}
-                  activeStepId={activeStepId}
-                  onStepSelect={setActiveStepId}
-                />
-              </div>
-              <RequestTable
-                requests={requests}
-                selectedRequestId={selectedRequest.id}
-                onSelectRequest={setSelectedRequestId}
-              />
-              <div id="similar-cases" className="scroll-mt-5">
-                <SimilarCases request={selectedRequest} cases={similarCases} />
-              </div>
-            </div>
-
-            <aside className="grid min-w-0 gap-6 self-start xl:sticky xl:top-6">
-              <div id="analysis-panel" className="scroll-mt-5">
-                <AnalysisPanel
-                  request={selectedRequest}
-                  onOpenDocument={() => setDocumentOpen(true)}
-                />
-              </div>
-              <div id="resource-panel" className="scroll-mt-5">
-                <ResourcePanel
-                  resources={selectedResources}
-                  statuses={resourceStatuses}
-                  onRequestSupport={handleSupportRequest}
-                />
-              </div>
-              <div id="action-checklist" className="scroll-mt-5">
-                <ActionChecklist
-                  completedItems={checklistState[selectedRequest.id] ?? {}}
-                  onToggleItem={handleToggleChecklistItem}
-                />
-              </div>
-            </aside>
-          </section>
+          {activeView}
         </main>
       </div>
 

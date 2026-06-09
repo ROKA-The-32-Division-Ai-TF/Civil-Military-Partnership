@@ -14,7 +14,7 @@ export function StatCard({ label, value, caption, icon: Icon, color }: StatCardP
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-bold text-slate-500">{label}</p>
-          <p className="mt-2 text-3xl font-bold tracking-normal text-civicNavy">{value}</p>
+          <p className="mt-2 whitespace-nowrap text-3xl font-bold tracking-normal text-civicNavy">{value}</p>
         </div>
         <div
           className="flex h-11 w-11 items-center justify-center rounded-lg"
