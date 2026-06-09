@@ -29,6 +29,15 @@ export interface CollaborationRequest {
   mapY: number;
 }
 
+export interface RequestDraftInput {
+  title: string;
+  requester: string;
+  location: string;
+  category: Category;
+  priority: Priority;
+  detail: string;
+}
+
 export interface RecommendationResource {
   id: string;
   name: string;
@@ -47,6 +56,17 @@ export interface DocumentDraft {
   letter: string;
   plan: string;
   report: string;
+}
+
+export interface SimilarCase {
+  id: string;
+  title: string;
+  category: Category;
+  agency: string;
+  year: string;
+  result: string;
+  resources: string[];
+  matchScore: number;
 }
 
 export const sidebarMenus: SidebarMenu[] = [
@@ -191,6 +211,69 @@ export const collaborationRequests: CollaborationRequest[] = [
     partners: ['세종시 재난안전대책본부', '세종소방본부', '육군 제32보병사단'],
     mapX: 69,
     mapY: 78,
+  },
+];
+
+export const similarCases: SimilarCase[] = [
+  {
+    id: 'case-river-cleanup',
+    title: '농촌마을 배수로 준설 및 하천 주변 정비',
+    category: '환경·정화',
+    agency: '세종시 건설과',
+    year: '2023',
+    result: '배수 취약구간 1.2km 정비, 생활민원 재발률 감소',
+    resources: ['굴삭기', '덤프트럭', '현장 정비 인력'],
+    matchScore: 94,
+  },
+  {
+    id: 'case-home-care',
+    title: '취약계층 주거환경 개선 합동지원',
+    category: '복지·생활',
+    agency: '세종시 복지정책과',
+    year: '2024',
+    result: '가구 내 폐기물 반출 및 생활지원 물품 연계',
+    resources: ['자원봉사 인력', '소형 화물차', '생활지원 물품'],
+    matchScore: 91,
+  },
+  {
+    id: 'case-lowland-rain',
+    title: '집중호우 전 저지대 배수 취약지점 사전 점검',
+    category: '재난대응',
+    agency: '세종시 재난안전대책본부',
+    year: '2024',
+    result: '양수 장비 사전배치와 주민 안내로 침수 피해 예방',
+    resources: ['양수 장비', '현장 통제 인력', '주민 안내 채널'],
+    matchScore: 89,
+  },
+  {
+    id: 'case-night-walk',
+    title: '학교 주변 야간 보행 안전 합동점검',
+    category: '안전·치안',
+    agency: '세종시 안전정책과',
+    year: '2023',
+    result: '조도 취약 구간 확인, 순찰 동선과 안내표지 개선',
+    resources: ['조도 점검 장비', '순찰 협조팀', '안내 표지'],
+    matchScore: 87,
+  },
+  {
+    id: 'case-youth-safety',
+    title: '청소년 공공안전 체험 프로그램 운영',
+    category: '교육·문화',
+    agency: '세종소방본부',
+    year: '2024',
+    result: '참여형 교육 운영으로 안전 체감도와 참여 만족도 향상',
+    resources: ['교육 운영 인력', '체험 교구', '안전관리 요원'],
+    matchScore: 85,
+  },
+  {
+    id: 'case-roadscape',
+    title: '마을 진입도로 경관 정비 및 안내시설 개선',
+    category: '지역발전',
+    agency: '세종시 지역균형발전과',
+    year: '2023',
+    result: '위험요소 정비와 안내시설 개선으로 방문 동선 명확화',
+    resources: ['현장조사반', '정비 장비', '안내시설 자재'],
+    matchScore: 82,
   },
 ];
 

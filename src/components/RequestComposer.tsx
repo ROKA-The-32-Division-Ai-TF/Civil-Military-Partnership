@@ -1,0 +1,179 @@
+import { RotateCcw, WandSparkles } from 'lucide-react';
+import { useState } from 'react';
+import {
+  categoryLegend,
+  type Category,
+  type Priority,
+  type RequestDraftInput,
+} from '../data';
+
+interface RequestComposerProps {
+  onCreateRequest: (input: RequestDraftInput) => void;
+}
+
+const categories = Object.keys(categoryLegend) as Category[];
+const priorities: Priority[] = ['높음', '보통', '긴급'];
+
+const emptyForm: RequestDraftInput = {
+  title: '',
+  requester: '',
+  location: '',
+  category: '환경·정화',
+  priority: '높음',
+  detail: '',
+};
+
+const sampleForm: RequestDraftInput = {
+  title: '○○동 어린이공원 배수 불량 및 주변 환경 정비 요청',
+  requester: '○○동 주민자치회',
+  location: '○○동 어린이공원 일대',
+  category: '환경·정화',
+  priority: '높음',
+  detail:
+    '최근 집중호우 이후 공원 주변 배수 흐름이 좋지 않고 토사와 생활 쓰레기가 함께 쌓여 주민 이용 불편이 발생하고 있습니다.',
+};
+
+export function RequestComposer({ onCreateRequest }: RequestComposerProps) {
+  const [form, setForm] = useState<RequestDraftInput>(sampleForm);
+  const [message, setMessage] = useState('');
+
+  const disabled =
+    !form.title.trim() || !form.requester.trim() || !form.location.trim() || !form.detail.trim();
+
+  const updateField = <Key extends keyof RequestDraftInput>(
+    key: Key,
+    value: RequestDraftInput[Key],
+  ) => {
+    setForm((current) => ({ ...current, [key]: value }));
+    setMessage('');
+  };
+
+  const handleSubmit = () => {
+    if (disabled) {
+      setMessage('요청 제목, 기관, 위치, 내용을 입력하면 AI 분석을 생성할 수 있습니다.');
+      return;
+    }
+
+    onCreateRequest(form);
+    setMessage('AI 분석 결과가 생성되어 현황 지도와 분석 패널에 반영되었습니다.');
+  };
+
+  return (
+    <section className="rounded-lg border border-white bg-white/[0.92] p-5 shadow-panel backdrop-blur">
+      <div className="flex flex-col gap-3 border-b border-slate-100 pb-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
+            Quick Intake
+          </p>
+          <h2 className="mt-2 text-lg font-bold text-civicNavy">신규 협업 요청 입력</h2>
+          <p className="mt-1 text-sm text-slate-500">
+            발표 중 직접 입력해도 즉시 AI 분석 카드가 생성됩니다.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            setForm(sampleForm);
+            setMessage('');
+          }}
+          className="inline-flex w-fit items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-civicNavy transition hover:border-publicGreen hover:text-publicGreen"
+        >
+          <RotateCcw className="h-4 w-4" aria-hidden="true" />
+          예시 불러오기
+        </button>
+      </div>
+
+      <div className="mt-5 grid gap-3 lg:grid-cols-2">
+        <label className="grid gap-1.5 text-sm font-bold text-civicNavy lg:col-span-2">
+          요청 제목
+          <input
+            value={form.title}
+            onChange={(event) => updateField('title', event.target.value)}
+            className="rounded-lg border border-slate-200 bg-porcelain px-3 py-2.5 text-sm font-medium text-slate-800 outline-none transition focus:border-publicGreen focus:bg-white focus:ring-4 focus:ring-emerald-100"
+            placeholder="예: 마을 배수로 정비 및 환경 개선 요청"
+          />
+        </label>
+
+        <label className="grid gap-1.5 text-sm font-bold text-civicNavy">
+          요청 기관
+          <input
+            value={form.requester}
+            onChange={(event) => updateField('requester', event.target.value)}
+            className="rounded-lg border border-slate-200 bg-porcelain px-3 py-2.5 text-sm font-medium text-slate-800 outline-none transition focus:border-publicGreen focus:bg-white focus:ring-4 focus:ring-emerald-100"
+            placeholder="예: 연동면 주민자치회"
+          />
+        </label>
+
+        <label className="grid gap-1.5 text-sm font-bold text-civicNavy">
+          위치
+          <input
+            value={form.location}
+            onChange={(event) => updateField('location', event.target.value)}
+            className="rounded-lg border border-slate-200 bg-porcelain px-3 py-2.5 text-sm font-medium text-slate-800 outline-none transition focus:border-publicGreen focus:bg-white focus:ring-4 focus:ring-emerald-100"
+            placeholder="예: ○○마을 배수로 주변"
+          />
+        </label>
+
+        <label className="grid gap-1.5 text-sm font-bold text-civicNavy">
+          협업 유형
+          <select
+            value={form.category}
+            onChange={(event) => updateField('category', event.target.value as Category)}
+            className="rounded-lg border border-slate-200 bg-porcelain px-3 py-2.5 text-sm font-medium text-slate-800 outline-none transition focus:border-publicGreen focus:bg-white focus:ring-4 focus:ring-emerald-100"
+          >
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="grid gap-1.5 text-sm font-bold text-civicNavy">
+          우선순위
+          <select
+            value={form.priority}
+            onChange={(event) => updateField('priority', event.target.value as Priority)}
+            className="rounded-lg border border-slate-200 bg-porcelain px-3 py-2.5 text-sm font-medium text-slate-800 outline-none transition focus:border-publicGreen focus:bg-white focus:ring-4 focus:ring-emerald-100"
+          >
+            {priorities.map((priority) => (
+              <option key={priority} value={priority}>
+                {priority}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="grid gap-1.5 text-sm font-bold text-civicNavy lg:col-span-2">
+          요청 내용
+          <textarea
+            value={form.detail}
+            onChange={(event) => updateField('detail', event.target.value)}
+            rows={4}
+            className="resize-none rounded-lg border border-slate-200 bg-porcelain px-3 py-2.5 text-sm font-medium leading-6 text-slate-800 outline-none transition focus:border-publicGreen focus:bg-white focus:ring-4 focus:ring-emerald-100"
+            placeholder="현장 상황, 필요한 지원, 주민 불편 내용을 간단히 입력"
+          />
+        </label>
+      </div>
+
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        {message ? (
+          <p className="text-sm font-semibold text-publicGreen">{message}</p>
+        ) : (
+          <p className="text-sm text-slate-500">
+            실제 API 없이 입력값 기반 더미 분석을 생성합니다.
+          </p>
+        )}
+        <button
+          type="button"
+          onClick={handleSubmit}
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-civicNavy px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#12395F] disabled:cursor-not-allowed disabled:bg-slate-300"
+          disabled={disabled}
+        >
+          <WandSparkles className="h-4 w-4" aria-hidden="true" />
+          AI 분석 생성
+        </button>
+      </div>
+    </section>
+  );
+}

@@ -1,3 +1,5 @@
+import { Search } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { categoryLegend, type CollaborationRequest } from '../data';
 
 interface RequestTableProps {
@@ -11,6 +13,29 @@ export function RequestTable({
   selectedRequestId,
   onSelectRequest,
 }: RequestTableProps) {
+  const [query, setQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('전체');
+
+  const statuses = useMemo(
+    () => ['전체', ...Array.from(new Set(requests.map((request) => request.status)))],
+    [requests],
+  );
+
+  const filteredRequests = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    return requests.filter((request) => {
+      const queryMatch =
+        !normalizedQuery ||
+        `${request.title} ${request.requester} ${request.location} ${request.category}`
+          .toLowerCase()
+          .includes(normalizedQuery);
+      const statusMatch = statusFilter === '전체' || request.status === statusFilter;
+
+      return queryMatch && statusMatch;
+    });
+  }, [query, requests, statusFilter]);
+
   return (
     <section className="min-w-0 rounded-lg border border-white bg-white/[0.92] p-5 shadow-panel backdrop-blur">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -25,6 +50,29 @@ export function RequestTable({
         </span>
       </div>
 
+      <div className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
+        <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-porcelain px-3 py-2.5 focus-within:border-publicGreen focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-100">
+          <Search className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            className="min-w-0 flex-1 bg-transparent text-sm font-medium text-slate-800 outline-none placeholder:text-slate-400"
+            placeholder="요청 제목, 기관, 위치 검색"
+          />
+        </div>
+        <select
+          value={statusFilter}
+          onChange={(event) => setStatusFilter(event.target.value)}
+          className="rounded-lg border border-slate-200 bg-porcelain px-3 py-2.5 text-sm font-bold text-civicNavy outline-none transition focus:border-publicGreen focus:bg-white focus:ring-4 focus:ring-emerald-100"
+        >
+          {statuses.map((status) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div className="mt-5 overflow-x-auto rounded-lg border border-slate-100">
         <table className="min-w-[760px] w-full border-separate border-spacing-0 text-left text-sm">
           <thead>
@@ -36,7 +84,7 @@ export function RequestTable({
             </tr>
           </thead>
           <tbody>
-            {requests.map((request) => {
+            {filteredRequests.map((request) => {
               const selected = selectedRequestId === request.id;
               const palette = categoryLegend[request.category];
 
@@ -73,6 +121,11 @@ export function RequestTable({
             })}
           </tbody>
         </table>
+        {filteredRequests.length === 0 ? (
+          <div className="px-4 py-8 text-center text-sm font-semibold text-slate-500">
+            조건에 맞는 협업 요청이 없습니다.
+          </div>
+        ) : null}
       </div>
     </section>
   );
