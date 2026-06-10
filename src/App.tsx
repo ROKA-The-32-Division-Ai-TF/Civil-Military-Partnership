@@ -37,7 +37,7 @@ const stats = [
   {
     label: '진행 중 협업',
     value: '12건',
-    caption: '세종시 부서와 협력기관이 처리 중',
+    caption: '세종시와 협력 군부대가 처리 중',
     icon: Activity,
     color: '#1F7A5C',
   },
@@ -51,7 +51,7 @@ const stats = [
   {
     label: '지원 가능 자원',
     value: '156건',
-    caption: '인력, 장비, 차량, 물품 통합 현황',
+    caption: '대민지원 인력, 장비, 차량, 물자',
     icon: Boxes,
     color: '#0B2B4C',
   },
@@ -82,18 +82,18 @@ const operatorModes = [
 const viewMeta: Record<string, { title: string; description: string }> = {
   dashboard: {
     title: '업무 홈',
-    description: '요청을 선택하고 다음 조치를 바로 실행합니다.',
+    description: '세종시 대민지원 요청을 선택하고 다음 조치를 바로 실행합니다.',
   },
   requests: {
     title: '협업 요청 관리',
     description: '새 요청을 입력하거나 기존 요청을 검색합니다.',
   },
   analysis: {
-    title: 'AI 분석 & 추천',
-    description: '선택 요청의 위치, 필요 자원, 협업기관을 확인합니다.',
+    title: 'AI 상황지도',
+    description: '선택 요청의 위치, 필요 자원, 군 협력 필요성을 확인합니다.',
   },
   resources: {
-    title: '자원·지원 관리',
+    title: '자원 요청',
     description: '추천 자원을 요청하고 실행 준비 상태를 체크합니다.',
   },
   cases: {
@@ -105,7 +105,7 @@ const viewMeta: Record<string, { title: string; description: string }> = {
     description: '협조공문, 지원계획서, 결과보고서 초안을 확인합니다.',
   },
   performance: {
-    title: '성과 관리',
+    title: '성과 보기',
     description: '협업 절차와 성과 지표를 확인합니다.',
   },
   alerts: {
@@ -119,29 +119,29 @@ const viewMeta: Record<string, { title: string; description: string }> = {
 };
 
 const generatedPositions: Record<Category, Array<{ mapX: number; mapY: number }>> = {
-  '환경·정화': [
-    { mapX: 43, mapY: 64 },
-    { mapX: 57, mapY: 55 },
+  재난복구: [
+    { mapX: 61, mapY: 73 },
+    { mapX: 50, mapY: 34 },
   ],
-  '복지·생활': [
-    { mapX: 37, mapY: 42 },
-    { mapX: 62, mapY: 45 },
+  환경정화: [
+    { mapX: 55, mapY: 47 },
+    { mapX: 44, mapY: 55 },
   ],
-  지역발전: [
-    { mapX: 32, mapY: 70 },
-    { mapX: 52, mapY: 66 },
+  '시설·물자': [
+    { mapX: 66, mapY: 57 },
+    { mapX: 42, mapY: 18 },
   ],
-  '안전·치안': [
-    { mapX: 66, mapY: 48 },
-    { mapX: 58, mapY: 34 },
+  농촌지원: [
+    { mapX: 33, mapY: 63 },
+    { mapX: 38, mapY: 31 },
   ],
-  '교육·문화': [
-    { mapX: 50, mapY: 74 },
-    { mapX: 42, mapY: 36 },
+  '교육·체험': [
+    { mapX: 53, mapY: 66 },
+    { mapX: 58, mapY: 40 },
   ],
-  재난대응: [
-    { mapX: 70, mapY: 76 },
-    { mapX: 61, mapY: 80 },
+  행사지원: [
+    { mapX: 47, mapY: 26 },
+    { mapX: 49, mapY: 50 },
   ],
 };
 
@@ -150,163 +150,163 @@ const generatedAnalysis: Record<Category, {
   resources: string[];
   partners: string[];
 }> = {
-  '환경·정화': {
+  재난복구: {
     summary:
-      '입력된 요청은 생활권 환경 정비와 배수 취약요소 개선이 결합된 건으로 분석됩니다. 현장 접근로와 토사·폐기물 처리 동선을 함께 확인하면 신속한 조치가 가능합니다.',
-    resources: ['장비(굴삭기)', '차량(덤프)', '환경정비 인력'],
-    partners: ['세종시 환경정책과', '세종시 건설과', '세종시 자원봉사센터'],
+      '입력된 요청은 재난 이후 응급 복구 대민지원 건으로 분석됩니다. 세종시 현장 확인, 장비 접근로, 안전 통제 범위를 먼저 정리한 뒤 협력 군부대의 인력·장비 지원 가능성을 검토하는 방식이 적합합니다.',
+    resources: ['복구 장비', '현장 정비 인력', '운반 차량', '안전 통제선'],
+    partners: ['세종특별자치시 재난관리부서', '협력 군부대'],
   },
-  '복지·생활': {
+  환경정화: {
     summary:
-      '생활 불편 해소와 취약계층 지원 성격이 높은 요청입니다. 복지 부서의 대상자 확인과 자원봉사 인력 연계를 함께 진행하는 방식이 적합합니다.',
-    resources: ['생활지원 물품', '정리·보수 인력', '소형 화물차'],
-    partners: ['세종시 복지정책과', '세종시 자원봉사센터', '지역 사회복지기관'],
+      '입력된 요청은 하천·생활권 환경정화 대민지원 건으로 분석됩니다. 현장 범위가 넓거나 단기간 집중 정비가 필요한 경우 세종시 수거 체계와 협력 군부대 정비 인력을 함께 배치할 수 있습니다.',
+    resources: ['환경정비 인력', '폐기물 수거 차량', '안전 안내물'],
+    partners: ['세종특별자치시 환경관리부서', '협력 군부대'],
   },
-  지역발전: {
+  '시설·물자': {
     summary:
-      '지역 편의시설 개선과 생활환경 정비가 포함된 요청입니다. 현장조사 후 시설 보수, 안내체계 개선, 주민 안내를 단계적으로 추진하는 것이 적합합니다.',
-    resources: ['현장조사 인력', '정비 장비', '안내시설 자재'],
-    partners: ['세종시 지역균형발전과', '읍면동 행정복지센터', '마을공동체 지원기관'],
+      '입력된 요청은 재난 대비 물자 또는 시설 응급 조치가 필요한 건으로 분석됩니다. 세종시가 배치 지점과 우선순위를 지정하고 협력 군부대가 운반·적재·현장 보조를 검토하는 구조가 적합합니다.',
+    resources: ['물자 운반 차량', '적재 인력', '응급 보수 자재'],
+    partners: ['세종특별자치시 재난관리부서', '협력 군부대'],
   },
-  '안전·치안': {
+  농촌지원: {
     summary:
-      '시민 안전과 현장 위험요소 점검이 필요한 요청입니다. 위험 구간 표시, 순찰 동선 협의, 주민 안내를 우선 검토하는 것이 좋습니다.',
-    resources: ['안전 점검 인력', '임시 안내물', '순찰 협조'],
-    partners: ['세종시 안전정책과', '세종경찰청', '읍면동 행정복지센터'],
+      '입력된 요청은 농번기 단기 인력 지원 성격의 대민지원 건입니다. 대상 농가, 작업 시간, 안전 수칙을 세종시가 확정한 뒤 협력 군부대의 제한적 일손돕기를 검토할 수 있습니다.',
+    resources: ['일손돕기 인력', '소형 운반 차량', '작업 안전용품'],
+    partners: ['세종특별자치시 농업지원부서', '협력 군부대'],
   },
-  '교육·문화': {
+  '교육·체험': {
     summary:
-      '시민 참여형 교육·문화 지원 요청으로 분석됩니다. 참여자 규모, 이동 동선, 안전관리 요원을 사전에 확정하면 운영 안정성이 높아집니다.',
-    resources: ['교육 운영 인력', '체험 교구', '안전관리 요원'],
-    partners: ['세종시 교육지원 부서', '세종소방본부', '지역 교육기관'],
+      '입력된 요청은 시민 대상 재난안전 교육·체험 지원 건으로 분석됩니다. 세종시가 교육 목적과 대상자를 관리하고 협력 군부대는 물자 전시, 안전 안내, 체험 보조 범위에서 참여하는 방식이 적합합니다.',
+    resources: ['교육 보조 인력', '재난 대비 물자 전시', '안전 안내 요원'],
+    partners: ['세종특별자치시 안전교육부서', '협력 군부대'],
   },
-  재난대응: {
+  행사지원: {
     summary:
-      '재난 예방 또는 초기 대응 성격이 높은 요청입니다. 장비 사전 배치, 현장 통제, 주민 안내 체계를 함께 준비해야 합니다.',
-    resources: ['양수 장비', '현장 통제 인력', '주민 안내 채널'],
-    partners: ['세종시 재난안전대책본부', '세종소방본부', '육군 제32보병사단'],
+      '입력된 요청은 공공·보훈행사 운영을 위한 제한적 현장 지원 건으로 분석됩니다. 세종시가 행사 운영을 주관하고 협력 군부대는 물자 설치, 정리, 동선 안내 보조 범위에서 참여할 수 있습니다.',
+    resources: ['행사용 물자', '설치 보조 인력', '동선 안내 표지'],
+    partners: ['세종특별자치시 행사·보훈업무부서', '협력 군부대'],
   },
 };
 
 const generatedResourceTemplates: Record<Category, Array<Omit<RecommendationResource, 'id'>>> = {
-  '환경·정화': [
+  재난복구: [
     {
-      name: '현장 정비 인력 18명',
-      owner: '세종시 자원봉사센터',
-      availableDate: '협의 후 확정',
-      detail: '생활 쓰레기 수거와 주변 환경정화 지원',
+      name: '응급 복구 인력 18명',
+      owner: '협력 군부대',
+      availableDate: '즉시 검토',
+      detail: '토사 정리, 마대 적재, 현장 정비 보조',
     },
     {
-      name: '굴삭기 1대',
-      owner: '세종시 건설과',
+      name: '복구 장비 1식',
+      owner: '세종특별자치시 재난관리부서',
       availableDate: '협의 후 확정',
-      detail: '토사 제거와 배수 흐름 개선 작업 지원',
+      detail: '배수로 정비와 응급 복구 장비 지원',
+    },
+    {
+      name: '운반 차량 1대',
+      owner: '협력 군부대',
+      availableDate: '협의 후 확정',
+      detail: '복구 물자와 현장 폐기물 이동 보조',
+    },
+  ],
+  환경정화: [
+    {
+      name: '환경정비 인력 20명',
+      owner: '협력 군부대',
+      availableDate: '협의 후 확정',
+      detail: '하천변 부유물과 생활폐기물 수거 지원',
     },
     {
       name: '폐기물 수거 차량 1대',
-      owner: '세종시 환경정책과',
+      owner: '세종특별자치시 환경관리부서',
       availableDate: '협의 후 확정',
-      detail: '현장 폐기물 반출과 임시 적치 지원',
+      detail: '수거물 반출과 임시 적치장 이동',
+    },
+    {
+      name: '현장 안전물품 1식',
+      owner: '세종특별자치시 환경관리부서',
+      availableDate: '협의 후 확정',
+      detail: '작업 장갑, 마대, 안내 표지 지원',
     },
   ],
-  '복지·생활': [
+  '시설·물자': [
     {
-      name: '생활지원 인력 12명',
-      owner: '세종시 자원봉사센터',
+      name: '물자 운반 차량 2대',
+      owner: '협력 군부대',
       availableDate: '협의 후 확정',
-      detail: '정리, 물품 이동, 생활 불편 해소 지원',
+      detail: '예방 물자와 응급 보수 자재 운반',
     },
     {
-      name: '생활지원 꾸러미 20세트',
-      owner: '지역 사회복지기관',
+      name: '적재 인력 12명',
+      owner: '협력 군부대',
       availableDate: '협의 후 확정',
-      detail: '대상자 생활 안정 물품 지원',
+      detail: '모래주머니, 제설 자재, 임시 물자 적재',
     },
     {
-      name: '소형 화물차 1대',
-      owner: '세종시 복지정책과',
+      name: '응급 보수 자재',
+      owner: '세종특별자치시 재난관리부서',
       availableDate: '협의 후 확정',
-      detail: '물품 운반과 폐기물 반출 보조',
+      detail: '현장별 사전 배치 물자 지원',
     },
   ],
-  지역발전: [
+  농촌지원: [
     {
-      name: '현장조사반 5명',
-      owner: '세종시 지역균형발전과',
+      name: '일손돕기 인력 16명',
+      owner: '협력 군부대',
       availableDate: '협의 후 확정',
-      detail: '시설 개선 지점과 주민 동선 확인',
+      detail: '고령농가 단기 작업 보조',
     },
     {
-      name: '정비 장비 세트',
-      owner: '읍면동 행정복지센터',
+      name: '소형 운반 차량 1대',
+      owner: '세종특별자치시 농업지원부서',
       availableDate: '협의 후 확정',
-      detail: '소규모 보수와 환경 정비 지원',
+      detail: '작업 도구와 수확물 이동 보조',
     },
     {
-      name: '안내시설 자재 1식',
-      owner: '마을공동체 지원기관',
+      name: '작업 안전용품 30세트',
+      owner: '세종특별자치시 농업지원부서',
       availableDate: '협의 후 확정',
-      detail: '임시 안내판과 방향 표식 설치',
+      detail: '장갑, 팔토시, 현장 안내물 지원',
     },
   ],
-  '안전·치안': [
+  '교육·체험': [
     {
-      name: '안전 점검반 6명',
-      owner: '세종시 안전정책과',
+      name: '교육 보조 인력 8명',
+      owner: '협력 군부대',
       availableDate: '협의 후 확정',
-      detail: '위험요소 확인과 개선 필요사항 정리',
+      detail: '체험 부스 안내와 참여자 안전 보조',
     },
     {
-      name: '순찰 협조팀',
-      owner: '세종경찰청',
+      name: '재난 대비 물자 전시 세트',
+      owner: '협력 군부대',
       availableDate: '협의 후 확정',
-      detail: '취약 시간대 순찰 동선 점검',
+      detail: '시민 체험용 전시 물자와 설명 보조',
     },
     {
-      name: '임시 안전 안내물 15개',
-      owner: '읍면동 행정복지센터',
+      name: '교육장 운영 지원',
+      owner: '세종특별자치시 안전교육부서',
       availableDate: '협의 후 확정',
-      detail: '주의 구간 표시와 우회 안내',
+      detail: '참여자 접수, 동선 관리, 사전 안내',
     },
   ],
-  '교육·문화': [
+  행사지원: [
     {
-      name: '프로그램 운영 인력 8명',
-      owner: '지역 교육기관',
+      name: '행사 설치 보조 인력 12명',
+      owner: '협력 군부대',
       availableDate: '협의 후 확정',
-      detail: '참여자 안내와 프로그램 운영 지원',
+      detail: '행사장 물자 설치와 종료 후 정리 지원',
     },
     {
-      name: '안전교육 지원팀',
-      owner: '세종소방본부',
+      name: '행사용 물자 1식',
+      owner: '세종특별자치시 행사·보훈업무부서',
       availableDate: '협의 후 확정',
-      detail: '체험형 안전교육 운영',
+      detail: '의자, 천막, 안내 표식 설치',
     },
     {
-      name: '안전관리 요원 4명',
-      owner: '읍면동 행정복지센터',
+      name: '동선 안내 표지 20개',
+      owner: '세종특별자치시 행사·보훈업무부서',
       availableDate: '협의 후 확정',
-      detail: '참여자 동선과 행사장 안전관리',
-    },
-  ],
-  재난대응: [
-    {
-      name: '양수 장비 2대',
-      owner: '세종시 재난안전대책본부',
-      availableDate: '즉시 검토',
-      detail: '침수 우려 지점 사전 배치',
-    },
-    {
-      name: '현장 통제 인력 12명',
-      owner: '육군 제32보병사단',
-      availableDate: '즉시 검토',
-      detail: '물자 이동 보조와 접근 통제 지원',
-    },
-    {
-      name: '주민 안내 채널 1식',
-      owner: '읍면동 행정복지센터',
-      availableDate: '즉시 검토',
-      detail: '문자, 마을방송, 안내문 연계',
+      detail: '참여자 이동 동선과 안전 구역 안내',
     },
   ],
 };
@@ -464,7 +464,7 @@ function App() {
         <div className="flex flex-col gap-4 border-b border-slate-100 pb-4 md:flex-row md:items-start md:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
-              Current Request
+              선택 요청
             </p>
             <h2 className="mt-2 text-2xl font-bold leading-tight text-civicNavy">
               {selectedRequest.title}
@@ -482,7 +482,7 @@ function App() {
           {[
             {
               title: 'AI 분석 보기',
-              detail: '요약과 협업기관 확인',
+              detail: '요약과 군 협력 필요성 확인',
               target: 'analysis',
             },
             {
@@ -523,7 +523,7 @@ function App() {
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
-              Queue
+              요청 목록
             </p>
             <h2 className="mt-2 text-lg font-bold text-civicNavy">최근 요청</h2>
           </div>
@@ -603,7 +603,7 @@ function App() {
       />
       <section className="rounded-lg border border-white bg-white/[0.94] p-5 shadow-panel">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
-          Results
+          성과 지표
         </p>
         <h2 className="mt-2 text-lg font-bold text-civicNavy">성과 요약</h2>
         <div className="mt-5 grid gap-3">
@@ -626,7 +626,7 @@ function App() {
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
       <section className="rounded-lg border border-white bg-white/[0.94] p-5 shadow-panel">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
-          Notifications
+          알림
         </p>
         <h2 className="mt-2 text-lg font-bold text-civicNavy">오늘 확인할 알림</h2>
         <div className="mt-5 grid gap-3">
@@ -652,7 +652,7 @@ function App() {
   const settingsView = (
     <section className="max-w-3xl rounded-lg border border-white bg-white/[0.94] p-5 shadow-panel">
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
-        Settings
+        설정
       </p>
       <h2 className="mt-2 text-xl font-bold text-civicNavy">시연 환경 설정</h2>
       <div className="mt-5 grid gap-4">
@@ -730,7 +730,7 @@ function App() {
           <header className="mb-4 flex flex-col gap-3 rounded-lg border border-slate-200 bg-white px-4 py-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-publicGreen">
-                여민용비 · 데모 모드
+                여민군 · 데모 모드
               </p>
               <h1 className="mt-1 text-2xl font-bold text-civicNavy">{page.title}</h1>
               <p className="mt-1 text-sm text-slate-500">{page.description}</p>

@@ -39,8 +39,8 @@ export function Sidebar({ activeMenu, onMenuSelect }: SidebarProps) {
             <ShieldCheck className="h-5 w-5" aria-hidden="true" />
           </div>
           <div>
-            <p className="text-base font-bold leading-tight">여민용비</p>
-            <p className="text-xs font-semibold text-slate-500">Yeomin Yongbi AI</p>
+            <p className="text-base font-bold leading-tight">여민군</p>
+            <p className="text-xs font-semibold text-slate-500">Yeomin Gun AI</p>
           </div>
         </div>
       </div>
@@ -70,10 +70,10 @@ export function Sidebar({ activeMenu, onMenuSelect }: SidebarProps) {
 
       <div className="mt-auto hidden border-t border-slate-100 p-4 lg:block">
         <div className="rounded-lg bg-[#F4F8F6] p-3">
-          <p className="text-xs font-bold text-publicGreen">협력 네트워크</p>
-          <p className="mt-1 text-sm font-bold text-civicNavy">6개 기관 연결</p>
+          <p className="text-xs font-bold text-publicGreen">운용 네트워크</p>
+          <p className="mt-1 text-sm font-bold text-civicNavy">세종시 · 협력 군부대</p>
           <p className="mt-1 text-xs leading-5 text-slate-500">
-            세종시 중심으로 요청과 자원을 한 화면에서 조율합니다.
+            대민지원 요청과 자원을 한 화면에서 조율합니다.
           </p>
         </div>
       </div>

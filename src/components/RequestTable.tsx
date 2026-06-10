@@ -41,7 +41,7 @@ export function RequestTable({
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
-            Request Queue
+            요청 목록
           </p>
           <h2 className="mt-2 text-lg font-bold text-civicNavy">최근 협업 요청</h2>
         </div>

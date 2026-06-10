@@ -14,7 +14,7 @@ export function ProcessFlow({ steps, activeStepId, onStepSelect }: ProcessFlowPr
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
-            Workflow
+            처리 절차
           </p>
           <h2 className="mt-2 text-lg font-bold text-civicNavy">
             민·관·군 협업 프로세스

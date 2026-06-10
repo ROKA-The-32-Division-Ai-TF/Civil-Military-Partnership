@@ -97,7 +97,7 @@ export function DocumentModal({ open, request, draft, onClose }: DocumentModalPr
         <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
-              Generated Document
+              자동 문서
             </p>
             <h2 id="document-modal-title" className="mt-2 text-xl font-bold text-civicNavy">
               AI 자동 생성 문서

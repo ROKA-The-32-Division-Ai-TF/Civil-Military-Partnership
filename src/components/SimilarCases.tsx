@@ -47,7 +47,7 @@ export function SimilarCases({ request, cases }: SimilarCasesProps) {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
-            Case Search
+            유사사례
           </p>
           <h2 className="mt-2 text-lg font-bold text-civicNavy">유사사례 검색</h2>
           <p className="mt-1 text-sm text-slate-500">

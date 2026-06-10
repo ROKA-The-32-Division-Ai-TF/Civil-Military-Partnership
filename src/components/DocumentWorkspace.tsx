@@ -49,7 +49,7 @@ export function DocumentWorkspace({ request, draft }: DocumentWorkspaceProps) {
       <div className="flex flex-col gap-3 border-b border-slate-100 pb-4 md:flex-row md:items-start md:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
-            Documents
+            자동 문서
           </p>
           <h2 className="mt-2 text-xl font-bold text-civicNavy">공문·계획서 작성</h2>
           <p className="mt-1 text-sm text-slate-500">{request.title}</p>

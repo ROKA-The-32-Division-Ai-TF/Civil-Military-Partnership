@@ -18,19 +18,19 @@ const emptyForm: RequestDraftInput = {
   title: '',
   requester: '',
   location: '',
-  category: '환경·정화',
+  category: '재난복구',
   priority: '높음',
   detail: '',
 };
 
 const sampleForm: RequestDraftInput = {
-  title: '○○동 어린이공원 배수 불량 및 주변 환경 정비 요청',
-  requester: '○○동 주민자치회',
-  location: '○○동 어린이공원 일대',
-  category: '환경·정화',
-  priority: '높음',
+  title: '마을 배수로 토사 제거 및 응급 복구 지원 요청',
+  requester: '○○면 이장협의회',
+  location: '○○면 저지대 배수로',
+  category: '재난복구',
+  priority: '긴급',
   detail:
-    '최근 집중호우 이후 공원 주변 배수 흐름이 좋지 않고 토사와 생활 쓰레기가 함께 쌓여 주민 이용 불편이 발생하고 있습니다.',
+    '집중호우 이후 배수로에 토사가 쌓여 농경지 침수 우려가 있습니다. 세종시 현장 확인과 협력 군부대의 장비·인력 지원 가능성 검토가 필요합니다.',
 };
 
 export function RequestComposer({ onCreateRequest }: RequestComposerProps) {
@@ -63,7 +63,7 @@ export function RequestComposer({ onCreateRequest }: RequestComposerProps) {
       <div className="flex flex-col gap-3 border-b border-slate-100 pb-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
-            Quick Intake
+            요청 접수
           </p>
           <h2 className="mt-2 text-lg font-bold text-civicNavy">신규 협업 요청 입력</h2>
           <p className="mt-1 text-sm text-slate-500">
@@ -90,7 +90,7 @@ export function RequestComposer({ onCreateRequest }: RequestComposerProps) {
             value={form.title}
             onChange={(event) => updateField('title', event.target.value)}
             className="rounded-lg border border-slate-200 bg-porcelain px-3 py-2.5 text-sm font-medium text-slate-800 outline-none transition focus:border-publicGreen focus:bg-white focus:ring-4 focus:ring-emerald-100"
-            placeholder="예: 마을 배수로 정비 및 환경 개선 요청"
+            placeholder="예: 마을 배수로 토사 제거 지원 요청"
           />
         </label>
 
@@ -100,7 +100,7 @@ export function RequestComposer({ onCreateRequest }: RequestComposerProps) {
             value={form.requester}
             onChange={(event) => updateField('requester', event.target.value)}
             className="rounded-lg border border-slate-200 bg-porcelain px-3 py-2.5 text-sm font-medium text-slate-800 outline-none transition focus:border-publicGreen focus:bg-white focus:ring-4 focus:ring-emerald-100"
-            placeholder="예: 연동면 주민자치회"
+            placeholder="예: 금남면 이장협의회"
           />
         </label>
 
@@ -110,7 +110,7 @@ export function RequestComposer({ onCreateRequest }: RequestComposerProps) {
             value={form.location}
             onChange={(event) => updateField('location', event.target.value)}
             className="rounded-lg border border-slate-200 bg-porcelain px-3 py-2.5 text-sm font-medium text-slate-800 outline-none transition focus:border-publicGreen focus:bg-white focus:ring-4 focus:ring-emerald-100"
-            placeholder="예: ○○마을 배수로 주변"
+            placeholder="예: ○○면 저지대 배수로"
           />
         </label>
 

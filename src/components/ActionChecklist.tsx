@@ -37,7 +37,7 @@ export function ActionChecklist({ completedItems, onToggleItem }: ActionChecklis
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
-            Action
+            실행 준비
           </p>
           <h2 className="mt-2 text-lg font-bold text-civicNavy">실행 체크리스트</h2>
         </div>
