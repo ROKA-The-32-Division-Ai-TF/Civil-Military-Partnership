@@ -1,4 +1,6 @@
 import { Layers3, MapPin, Route, Satellite, ShieldCheck, UsersRound } from 'lucide-react';
+import type { PointerEvent } from 'react';
+import { useRef, useState } from 'react';
 import { categoryLegend, type CollaborationRequest } from '../data';
 
 interface MapBoardProps {
@@ -61,14 +63,60 @@ function getMarkerPosition(request: CollaborationRequest) {
   };
 }
 
+function clampPan(value: number) {
+  return Math.max(-180, Math.min(180, value));
+}
+
 export function MapBoard({
   requests,
   selectedRequestId,
   onSelectRequest,
 }: MapBoardProps) {
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState(false);
+  const dragState = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    originX: number;
+    originY: number;
+  } | null>(null);
+
   const selectedRequest =
     requests.find((request) => request.id === selectedRequestId) ?? requests[0];
   const selectedPalette = categoryLegend[selectedRequest.category];
+
+  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    dragState.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      originX: pan.x,
+      originY: pan.y,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setDragging(true);
+  };
+
+  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    const current = dragState.current;
+    if (!current || current.pointerId !== event.pointerId) {
+      return;
+    }
+
+    setPan({
+      x: clampPan(current.originX + event.clientX - current.startX),
+      y: clampPan(current.originY + event.clientY - current.startY),
+    });
+  };
+
+  const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
+    if (dragState.current?.pointerId === event.pointerId) {
+      dragState.current = null;
+      setDragging(false);
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  };
 
   return (
     <section className="min-w-0 rounded-lg border border-white bg-white/[0.94] p-5 shadow-panel backdrop-blur">
@@ -86,7 +134,15 @@ export function MapBoard({
       </div>
 
       <div className="mt-5 grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_220px]">
-        <div className="relative min-h-[520px] overflow-hidden rounded-lg border border-[#D8E1DA] bg-[#EEF4F1] shadow-inner">
+        <div
+          className={`relative min-h-[520px] overflow-hidden rounded-lg border border-[#D8E1DA] bg-[#EEF4F1] shadow-inner ${
+            dragging ? 'cursor-grabbing' : 'cursor-grab'
+          }`}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+        >
           <svg
             className="absolute inset-0 h-full w-full"
             viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
@@ -95,62 +151,73 @@ export function MapBoard({
             preserveAspectRatio="none"
           >
             <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill="#EAF1EE" />
-            {mapTiles.map((tile) => (
-              <image
-                key={tile.id}
-                href={tile.url}
-                x={tile.x}
-                y={tile.y}
-                width={TILE_SIZE}
-                height={TILE_SIZE}
-                preserveAspectRatio="none"
-              />
-            ))}
+            <g transform={`translate(${pan.x} ${pan.y})`}>
+              {mapTiles.map((tile) => (
+                <image
+                  key={tile.id}
+                  href={tile.url}
+                  x={tile.x}
+                  y={tile.y}
+                  width={TILE_SIZE}
+                  height={TILE_SIZE}
+                  preserveAspectRatio="none"
+                />
+              ))}
+            </g>
           </svg>
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.10)_0%,rgba(255,255,255,0)_34%,rgba(11,43,76,0.10)_100%)]" />
           <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/80" />
 
-          {requests.map((request) => {
-            const palette = categoryLegend[request.category];
-            const selected = selectedRequestId === request.id;
-            const position = getMarkerPosition(request);
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{ transform: `translate(${pan.x}px, ${pan.y}px)` }}
+          >
+            {requests.map((request) => {
+              const palette = categoryLegend[request.category];
+              const selected = selectedRequestId === request.id;
+              const position = getMarkerPosition(request);
 
-            return (
-              <button
-                key={request.id}
-                type="button"
-                aria-label={`${request.location} ${request.category} 요청 선택`}
-                onClick={() => onSelectRequest(request.id)}
-                className="group absolute -translate-x-1/2 -translate-y-1/2"
-                style={{ left: `${position.left}%`, top: `${position.top}%` }}
-              >
-                <span
-                  className={`absolute left-1/2 top-1/2 h-14 w-14 -translate-x-1/2 -translate-y-1/2 rounded-full transition ${
-                    selected ? 'animate-ping opacity-25' : 'opacity-10 group-hover:opacity-20'
-                  }`}
-                  style={{ backgroundColor: palette.color }}
-                />
-                <span
-                  className={`relative flex items-center justify-center rounded-full border-[3px] border-white text-white shadow-lg ring-2 ring-white/90 transition ${
-                    selected ? 'h-12 w-12 scale-110' : 'h-9 w-9 group-hover:scale-110'
-                  }`}
-                  style={{ backgroundColor: palette.color }}
+              return (
+                <button
+                  key={request.id}
+                  type="button"
+                  aria-label={`${request.location} ${request.category} 요청 선택`}
+                  onPointerDown={(event) => event.stopPropagation()}
+                  onClick={() => onSelectRequest(request.id)}
+                  className="pointer-events-auto group absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer"
+                  style={{ left: `${position.left}%`, top: `${position.top}%` }}
                 >
-                  <MapPin className="h-5 w-5" aria-hidden="true" />
-                </span>
-                <span
-                  className={`pointer-events-none absolute left-1/2 top-12 min-w-40 -translate-x-1/2 rounded-lg border border-slate-200 bg-white/95 px-3 py-2 text-left text-xs text-slate-700 shadow-lg backdrop-blur ${
-                    selected ? 'block' : 'hidden group-hover:block'
-                  }`}
-                >
-                  <strong className="block text-civicNavy">{request.category}</strong>
-                  {request.location}
-                </span>
-              </button>
-            );
-          })}
+                  <span
+                    className={`absolute left-1/2 top-1/2 h-14 w-14 -translate-x-1/2 -translate-y-1/2 rounded-full transition ${
+                      selected ? 'animate-ping opacity-25' : 'opacity-10 group-hover:opacity-20'
+                    }`}
+                    style={{ backgroundColor: palette.color }}
+                  />
+                  <span
+                    className={`relative flex items-center justify-center rounded-full border-[3px] border-white text-white shadow-lg ring-2 ring-white/90 transition ${
+                      selected ? 'h-12 w-12 scale-110' : 'h-9 w-9 group-hover:scale-110'
+                    }`}
+                    style={{ backgroundColor: palette.color }}
+                  >
+                    <MapPin className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <span
+                    className={`pointer-events-none absolute left-1/2 top-12 min-w-40 -translate-x-1/2 rounded-lg border border-slate-200 bg-white/95 px-3 py-2 text-left text-xs text-slate-700 shadow-lg backdrop-blur ${
+                      selected ? 'block' : 'hidden group-hover:block'
+                    }`}
+                  >
+                    <strong className="block text-civicNavy">{request.category}</strong>
+                    {request.location}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
 
-          <div className="absolute left-4 top-4 rounded-lg border border-white bg-white/95 p-3 shadow-lg backdrop-blur">
+          <div
+            className="absolute left-4 top-4 rounded-lg border border-white bg-white/95 p-3 shadow-lg backdrop-blur"
+            onPointerDown={(event) => event.stopPropagation()}
+          >
             <div className="flex items-center gap-2 text-xs font-bold text-civicNavy">
               <Layers3 className="h-4 w-4 text-publicGreen" aria-hidden="true" />
               협업 레이어
@@ -171,7 +238,10 @@ export function MapBoard({
             </div>
           </div>
 
-          <div className="absolute bottom-4 left-4 right-4 rounded-lg border border-white bg-white/[0.96] p-4 shadow-lg backdrop-blur">
+          <div
+            className="absolute bottom-4 left-4 right-4 rounded-lg border border-white bg-white/[0.96] p-4 shadow-lg backdrop-blur"
+            onPointerDown={(event) => event.stopPropagation()}
+          >
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div className="min-w-0">
                 <p className="text-xs font-semibold text-publicGreen">선택 현장</p>

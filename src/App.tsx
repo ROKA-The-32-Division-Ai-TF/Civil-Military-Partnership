@@ -1,9 +1,15 @@
 import {
   Activity,
   ArrowRight,
+  Bell,
+  Bot,
   Boxes,
+  Building2,
+  ChevronDown,
   CheckCircle2,
+  ClipboardCheck,
   CircleUserRound,
+  Handshake,
   Landmark,
   ShieldCheck,
   Sparkles,
@@ -25,6 +31,7 @@ import { SimilarCases } from './components/SimilarCases';
 import { StatCard } from './components/StatCard';
 import {
   buildDocumentDraft,
+  categoryLegend,
   collaborationRequests,
   processSteps,
   resourceRecommendations,
@@ -37,32 +44,32 @@ import {
 
 const stats = [
   {
-    label: '진행 중 협업',
-    value: '12건',
-    caption: '세종시와 협력 군부대가 처리 중',
-    icon: Activity,
-    color: '#1F7A5C',
+    label: '전체 요청 건수',
+    value: '128건',
+    caption: '이번 달 +18건 (14.1%↑)',
+    icon: ClipboardCheck,
+    color: '#2563EB',
+  },
+  {
+    label: '진행 중인 협업',
+    value: '27건',
+    caption: '이번 달 +7건 (35.0%↑)',
+    icon: Handshake,
+    color: '#2F9E44',
   },
   {
     label: '완료된 협업',
-    value: '28건',
-    caption: '최근 분기 시민 요청 해결 실적',
+    value: '96건',
+    caption: '이번 달 +11건 (12.9%↑)',
     icon: CheckCircle2,
-    color: '#2F6FDB',
+    color: '#7C3AED',
   },
   {
-    label: '지원 가능 자원',
-    value: '156건',
-    caption: '대민지원 인력, 장비, 차량, 물자',
-    icon: Boxes,
-    color: '#0B2B4C',
-  },
-  {
-    label: 'AI 추천 완료',
-    value: '9건',
-    caption: '유사사례 기반 추천 생성 완료',
-    icon: Sparkles,
-    color: '#B98535',
+    label: '참여 기관 수',
+    value: '36개',
+    caption: '이번 달 +4개 (12.5%↑)',
+    icon: Building2,
+    color: '#EA7A12',
   },
 ];
 
@@ -460,113 +467,234 @@ function App() {
     setActiveMenu('dashboard');
   };
 
+  const statusSummary = [
+    ['검토 대기', '35건', '27.3%', '#CBD5E1'],
+    ['검토 중', '20건', '15.6%', '#4F6FED'],
+    ['협업 진행 중', '27건', '21.1%', '#4BB262'],
+    ['완료', '46건', '35.9%', '#2F9E44'],
+  ];
+
+  const categorySummary = [
+    ['재난복구', '28건', '21.9%', '#0B7285'],
+    ['환경정화', '32건', '25.0%', '#1F7A5C'],
+    ['시설·물자', '18건', '14.1%', '#2F6FDB'],
+    ['교육·체험', '22건', '17.2%', '#805AD5'],
+    ['행사지원', '16건', '12.5%', '#B98535'],
+    ['농촌지원', '12건', '9.4%', '#7A6A1F'],
+  ];
+
+  const stageSummary = [
+    ['요청 접수', '35건'],
+    ['AI 분석', '20건'],
+    ['군 협력 검토', '15건'],
+    ['협업 진행', '27건'],
+    ['완료', '46건'],
+  ];
+
+  const partnerSummary = [
+    ['행정기관', '18개', '총괄·조정, 행정 지원'],
+    ['협력 군부대', '7개', '인력·장비 지원, 안전 지원'],
+    ['공공기관', '6개', '기술·전문 지원'],
+    ['민간단체/협회', '5개', '자문·인력 지원'],
+  ];
+
+  const aiInsights = [
+    ['유사 사례 추천', '금강변 환경정화 활동과 유사한 사례가 확인되었습니다.', '사례 보기'],
+    ['추천 협력기관', '요청 유형에 적합한 협력 조합을 제안합니다.', '기관 보기'],
+    ['필요 자원 예측', '예상 필요 인원 25명, 장비 3대 수준입니다.', '자원 보기'],
+    ['예상 소요 기간', '우선 처리 기준 평균 1.5일이 소요됩니다.', '상세 보기'],
+  ];
+
   const dashboardView = (
     <div className="grid gap-5">
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_420px]">
-        <section className="rounded-lg border border-white bg-white/[0.94] p-5 shadow-panel">
-          <div className="flex flex-col gap-4 border-b border-slate-100 pb-4 md:flex-row md:items-start md:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
-                선택 요청
-              </p>
-              <h2 className="mt-2 text-2xl font-bold leading-tight text-civicNavy">
-                {selectedRequest.title}
-              </h2>
-              <p className="mt-2 text-sm text-slate-500">
-                {selectedRequest.requester} · {selectedRequest.location} · {selectedRequest.date}
-              </p>
-            </div>
-            <span className="w-fit rounded-full bg-[#EAF4EF] px-3 py-1 text-xs font-bold text-publicGreen">
-              {selectedRequest.status}
-            </span>
-          </div>
-
-          <div className="mt-5 grid gap-3 md:grid-cols-3">
-            {[
-              {
-                title: 'AI 분석',
-                detail: '위치·위험도·군 협력 필요성 확인',
-                action: '분석',
-                target: 'analysis',
-              },
-              {
-                title: '자원 요청',
-                detail: '인력·장비 지원 상태 변경',
-                action: '요청',
-                target: 'resources',
-              },
-              {
-                title: '문서 작성',
-                detail: '협조공문·계획서 초안 생성',
-                action: '작성',
-                target: 'documents',
-              },
-            ].map((item) => (
-              <button
-                key={item.title}
-                type="button"
-                onClick={() => setActiveMenu(item.target)}
-                className="group rounded-lg border border-slate-200 bg-porcelain p-4 text-left transition hover:-translate-y-0.5 hover:border-publicGreen hover:bg-white hover:shadow-md"
-              >
-                <span className="block text-sm font-bold text-civicNavy">{item.title}</span>
-                <span className="mt-1 block text-xs leading-5 text-slate-500">{item.detail}</span>
-                <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-publicGreen">
-                  {item.action}
-                  <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
-                </span>
-              </button>
-            ))}
-          </div>
-
-        </section>
-
-        <AIOperationPanel request={selectedRequest} />
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {dynamicStats.map((stat) => (
           <StatCard key={stat.label} {...stat} />
         ))}
       </div>
 
-      <JointActionPlan request={selectedRequest} />
-
-      <section className="rounded-lg border border-white bg-white/[0.94] p-5 shadow-panel">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
-              요청 목록
-            </p>
-            <h2 className="mt-2 text-lg font-bold text-civicNavy">최근 요청</h2>
-          </div>
-          <button
-            type="button"
-            onClick={() => setActiveMenu('requests')}
-            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-civicNavy transition hover:border-publicGreen hover:text-publicGreen"
-          >
-            전체 보기
-          </button>
-        </div>
-        <div className="mt-4 grid gap-2 lg:grid-cols-2">
-          {requests.slice(0, 6).map((request) => (
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.45fr)]">
+        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-panel">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-lg font-black text-civicNavy">협업 요청 현황</h2>
             <button
-              key={request.id}
               type="button"
-              onClick={() => setSelectedRequestId(request.id)}
-              className={`rounded-lg border p-3 text-left transition ${
-                selectedRequest.id === request.id
-                  ? 'border-publicGreen bg-[#F4FAF7]'
-                  : 'border-slate-200 bg-porcelain hover:bg-white'
-              }`}
+              className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-civicNavy"
             >
-              <span className="block text-sm font-bold text-civicNavy">{request.title}</span>
-              <span className="mt-1 block text-xs text-slate-500">
-                {request.requester} · {request.status}
-              </span>
+              전체
             </button>
-          ))}
-        </div>
-      </section>
+          </div>
+
+          <div className="mt-5 grid gap-5 md:grid-cols-[220px_minmax(0,1fr)] md:items-center">
+            <div className="relative mx-auto flex h-48 w-48 items-center justify-center rounded-full bg-[conic-gradient(#CBD5E1_0_27.3%,#4F6FED_27.3%_42.9%,#4BB262_42.9%_64%,#2F9E44_64%_100%)]">
+              <div className="flex h-28 w-28 flex-col items-center justify-center rounded-full bg-white shadow-inner">
+                <span className="text-sm font-bold text-slate-600">총</span>
+                <strong className="mt-1 text-2xl font-black text-civicNavy">128건</strong>
+              </div>
+            </div>
+
+            <div className="grid gap-3">
+              {statusSummary.map(([label, count, ratio, color]) => (
+                <div key={label} className="grid grid-cols-[1fr_auto] items-center gap-3 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="h-3 w-3 rounded"
+                      style={{ backgroundColor: color }}
+                    />
+                    <span className="font-semibold text-slate-600">{label}</span>
+                  </div>
+                  <span className="font-bold text-civicNavy">
+                    {count} <span className="font-medium text-slate-500">({ratio})</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-panel">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-lg font-black text-civicNavy">최근 협업 요청 목록</h2>
+            <button
+              type="button"
+              onClick={() => setActiveMenu('requests')}
+              className="inline-flex items-center gap-1 text-sm font-bold text-[#2563EB]"
+            >
+              전체 보기
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="mt-4 overflow-hidden rounded-lg border border-slate-100">
+            {requests.slice(0, 4).map((request, index) => {
+              const palette = categoryLegend[request.category];
+              const statusLabel = ['검토 대기', '검토 중', '협업 진행 중', '완료'][index] ?? request.status;
+
+              return (
+                <button
+                  key={request.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedRequestId(request.id);
+                    setActiveMenu('analysis');
+                  }}
+                  className="grid w-full gap-3 border-b border-slate-100 px-4 py-3 text-left transition last:border-b-0 hover:bg-[#F7FAFF] md:grid-cols-[110px_minmax(0,1fr)_120px_120px] md:items-center"
+                >
+                  <span
+                    className="w-fit rounded-md px-3 py-1 text-xs font-black"
+                    style={{ backgroundColor: palette.bg, color: palette.color }}
+                  >
+                    {statusLabel}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-black text-civicNavy">
+                      {request.title}
+                    </span>
+                    <span className="mt-1 block truncate text-xs text-slate-500">
+                      {request.category} · {request.location}
+                    </span>
+                  </span>
+                  <span className="text-sm font-semibold text-slate-600">{request.date}</span>
+                  <span className="text-sm font-semibold text-slate-600">{request.requester}</span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      </div>
+
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.95fr)]">
+        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-panel">
+          <h2 className="text-lg font-black text-civicNavy">협업 단계별 현황</h2>
+          <div className="mt-5 grid grid-cols-5 gap-2">
+            {stageSummary.map(([label, count], index) => (
+              <div key={label} className="min-w-0 text-center">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg border border-blue-200 bg-[#F7FAFF] text-sm font-black text-[#2563EB]">
+                  {index + 1}
+                </div>
+                <p className="mt-2 truncate text-xs font-bold text-civicNavy">{label}</p>
+                <p className="mt-1 text-sm font-black text-slate-700">{count}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 rounded-lg border border-slate-100 bg-[#FBFCFA] p-3 text-sm leading-6 text-slate-600">
+            최근 알림: {selectedRequest.title}의 협력 검토가 갱신되었습니다.
+          </div>
+        </section>
+
+        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-panel">
+          <h2 className="text-lg font-black text-civicNavy">분야별 요청 현황</h2>
+          <div className="mt-5 grid gap-3">
+            {categorySummary.map(([label, count, ratio, color]) => (
+              <div key={label} className="grid grid-cols-[88px_minmax(0,1fr)_92px] items-center gap-3 text-sm">
+                <span className="font-bold text-slate-600">{label}</span>
+                <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
+                  <div
+                    className="h-full rounded-full"
+                    style={{ width: ratio, backgroundColor: color }}
+                  />
+                </div>
+                <span className="text-right font-bold text-civicNavy">
+                  {count} <span className="font-medium text-slate-500">({ratio})</span>
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-panel">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-lg font-black text-civicNavy">협력 기관 현황</h2>
+            <button type="button" className="text-sm font-bold text-[#2563EB]">
+              전체 보기
+            </button>
+          </div>
+          <div className="mt-5 overflow-hidden rounded-lg border border-slate-100">
+            <div className="grid grid-cols-[1fr_80px_1.4fr] bg-slate-50 px-3 py-2 text-xs font-black text-slate-600">
+              <span>기관 유형</span>
+              <span>기관 수</span>
+              <span>주요 역할</span>
+            </div>
+            {partnerSummary.map(([type, count, role]) => (
+              <div key={type} className="grid grid-cols-[1fr_80px_1.4fr] border-t border-slate-100 px-3 py-3 text-sm">
+                <span className="font-bold text-slate-700">{type}</span>
+                <span className="font-bold text-civicNavy">{count}</span>
+                <span className="text-slate-600">{role}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      <div className="grid gap-5 2xl:grid-cols-[minmax(0,1fr)_380px]">
+        <section className="overflow-hidden rounded-lg border border-[#8CB4FF] bg-white p-5 shadow-panel">
+          <div className="grid gap-5 xl:grid-cols-[auto_minmax(0,1fr)] xl:items-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#263CCB] text-white shadow-lg shadow-blue-900/20">
+              <Bot className="h-9 w-9" />
+            </div>
+            <div>
+              <h2 className="text-lg font-black text-[#173E70]">AI 추천 인사이트</h2>
+              <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                {aiInsights.map(([title, detail, action]) => (
+                  <button
+                    key={title}
+                    type="button"
+                    onClick={() => setActiveMenu('analysis')}
+                    className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-left transition hover:border-[#2563EB] hover:bg-[#F7FAFF]"
+                  >
+                    <span className="block text-sm font-black text-civicNavy">{title}</span>
+                    <span className="mt-2 block text-xs leading-5 text-slate-600">{detail}</span>
+                    <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-[#2563EB]">
+                      {action}
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+        <AIOperationPanel request={selectedRequest} />
+      </div>
     </div>
   );
 
@@ -737,27 +865,42 @@ function App() {
                     : dashboardView;
 
   return (
-    <div className="min-h-screen bg-[#F6F8FA] text-slate-900">
+    <div className="min-h-screen bg-[#F4F7FB] text-slate-900">
       <div className="flex min-h-screen flex-col lg:flex-row">
         <Sidebar activeMenu={activeMenu} onMenuSelect={handleMenuSelect} />
 
-        <main className="min-w-0 flex-1 px-4 py-4 sm:px-6 lg:px-8">
-          <header className="mb-4 flex flex-col gap-3 rounded-lg border border-slate-200 bg-white px-4 py-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+        <main className="min-w-0 flex-1">
+          <header className="border-b border-slate-200 bg-white px-5 py-4 sm:px-7 lg:px-8">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-publicGreen">
-                여민군 통합 관제
+              <h1 className="text-2xl font-black text-slate-950">
+                안녕하세요, 세종시 협업담당자님!
+              </h1>
+              <p className="mt-1 text-sm font-medium text-slate-500">
+                시민의 요청을 함께 해결하고 더 나은 세종을 만들어갑니다.
               </p>
-              <h1 className="mt-1 text-2xl font-bold text-civicNavy">{page.title}</h1>
-              <p className="mt-1 text-sm text-slate-500">{page.description}</p>
             </div>
 
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-porcelain px-3 py-2">
-                <CircleUserRound className="h-5 w-5 text-publicGreen" aria-hidden="true" />
-                <div>
-                  <p className="text-sm font-bold text-civicNavy">{currentOperator.label}</p>
-                  <p className="text-xs text-slate-500">{currentOperator.description}</p>
+              <button
+                type="button"
+                className="relative flex h-11 w-11 items-center justify-center rounded-full bg-[#F5F7FE] text-civicNavy"
+                aria-label="알림"
+              >
+                <Bell className="h-5 w-5" />
+                <span className="absolute right-1 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-black text-white">
+                  3
+                </span>
+              </button>
+              <div className="flex items-center gap-3 rounded-lg px-2 py-1">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#EEF3FF] text-[#3157B7]">
+                  <CircleUserRound className="h-6 w-6" aria-hidden="true" />
                 </div>
+                <div>
+                  <p className="text-sm font-black text-civicNavy">세종시 협업담당자</p>
+                  <p className="text-xs font-semibold text-slate-500">세종특별자치시</p>
+                </div>
+                <ChevronDown className="h-4 w-4 text-slate-400" />
               </div>
               <button
                 type="button"
@@ -767,9 +910,10 @@ function App() {
                 새 요청 접수
               </button>
             </div>
+            </div>
           </header>
 
-          {activeView}
+          <div className="px-4 py-5 sm:px-6 lg:px-8">{activeView}</div>
         </main>
       </div>
 

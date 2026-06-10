@@ -10,20 +10,20 @@ interface StatCardProps {
 
 export function StatCard({ label, value, caption, icon: Icon, color }: StatCardProps) {
   return (
-    <div className="rounded-lg border border-white bg-white/[0.92] p-5 shadow-panel backdrop-blur">
+    <div className="rounded-lg border bg-white p-5 shadow-panel backdrop-blur" style={{ borderColor: `${color}55` }}>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-bold text-slate-500">{label}</p>
-          <p className="mt-2 whitespace-nowrap text-3xl font-bold tracking-normal text-civicNavy">{value}</p>
+          <p className="text-sm font-black" style={{ color }}>{label}</p>
+          <p className="mt-2 whitespace-nowrap text-3xl font-black tracking-normal text-slate-950">{value}</p>
         </div>
         <div
-          className="flex h-11 w-11 items-center justify-center rounded-lg"
-          style={{ backgroundColor: `${color}16`, color }}
+          className="flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg"
+          style={{ backgroundColor: color, boxShadow: `0 16px 28px ${color}33` }}
         >
-          <Icon className="h-5 w-5" aria-hidden="true" />
+          <Icon className="h-7 w-7" aria-hidden="true" />
         </div>
       </div>
-      <p className="mt-4 text-sm leading-5 text-slate-500">{caption}</p>
+      <p className="mt-4 text-sm font-semibold leading-5 text-slate-600">{caption}</p>
     </div>
   );
 }

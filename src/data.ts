@@ -72,12 +72,12 @@ export interface SimilarCase {
 }
 
 export const sidebarMenus: SidebarMenu[] = [
-  { id: 'dashboard', label: '업무 홈' },
-  { id: 'requests', label: '요청 접수' },
-  { id: 'analysis', label: 'AI 상황지도' },
-  { id: 'resources', label: '자원 요청' },
-  { id: 'documents', label: '문서 작성' },
-  { id: 'performance', label: '성과 보기' },
+  { id: 'dashboard', label: '대시보드' },
+  { id: 'requests', label: '요청 관리' },
+  { id: 'analysis', label: '협업 요청 검토' },
+  { id: 'resources', label: '협업 진행 관리' },
+  { id: 'documents', label: '문서 템플릿 관리' },
+  { id: 'performance', label: '통계/분석' },
 ];
 
 export const partnerInstitutions = ['세종특별자치시', '협력 군부대'];
