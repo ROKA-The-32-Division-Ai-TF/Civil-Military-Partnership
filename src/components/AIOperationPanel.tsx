@@ -97,8 +97,8 @@ export function AIOperationPanel({ request, onExplain }: AIOperationPanelProps) 
               onClick={() => {
                 setActiveStep(index);
                 onExplain?.({
-                  title: `AI 단계 실행: ${step.label}`,
-                  body: `${step.detail} 단계입니다. "${request.title}" 요청의 ${request.category} 특성을 기준으로 판단 근거를 갱신하고 다음 조치 후보를 좁힙니다.`,
+                  title: `${step.label} 진행 중`,
+                  body: `${step.detail}. 이 기준으로 "${request.title}"의 다음 조치를 더 좁혀보겠습니다.`,
                   chips: [step.label, request.category, '실시간 갱신'],
                 });
               }}

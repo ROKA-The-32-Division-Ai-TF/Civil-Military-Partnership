@@ -1,4 +1,4 @@
-import { FileText, Sparkles } from 'lucide-react';
+import { CheckCircle2, FileText, Network, Sparkles, Target } from 'lucide-react';
 import { categoryLegend, type CollaborationRequest } from '../data';
 
 interface AnalysisPanelProps {
@@ -14,6 +14,26 @@ const priorityStyle: Record<CollaborationRequest['priority'], string> = {
 
 export function AnalysisPanel({ request, onOpenDocument }: AnalysisPanelProps) {
   const palette = categoryLegend[request.category];
+  const aiResults = [
+    {
+      label: '유형 분류',
+      value: request.category,
+      detail: '요청 성격 확인',
+      icon: Target,
+    },
+    {
+      label: '자원 추출',
+      value: `${request.neededResources.length}개`,
+      detail: request.neededResources[0],
+      icon: Network,
+    },
+    {
+      label: '판단 상태',
+      value: '완료',
+      detail: `우선순위 ${request.priority}`,
+      icon: CheckCircle2,
+    },
+  ];
 
   return (
     <section className="rounded-lg border border-white bg-white/[0.92] p-5 shadow-panel backdrop-blur">
@@ -48,6 +68,36 @@ export function AnalysisPanel({ request, onOpenDocument }: AnalysisPanelProps) {
           <dd className="font-semibold text-slate-800">{request.location}</dd>
         </div>
       </dl>
+
+      <div className="mt-5 grid gap-2 sm:grid-cols-3 xl:grid-cols-1 2xl:grid-cols-3">
+        {aiResults.map((item) => {
+          const Icon = item.icon;
+
+          return (
+            <div
+              key={item.label}
+              className="rounded-lg border border-[#DDEBE3] bg-[#FBFCFA] p-3"
+            >
+              <div className="flex items-center gap-2">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#EAF4EF] text-publicGreen">
+                  <Icon className="h-4 w-4" aria-hidden="true" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-xs font-bold text-slate-500">
+                    {item.label}
+                  </span>
+                  <span className="block truncate text-sm font-black text-civicNavy">
+                    {item.value}
+                  </span>
+                </span>
+              </div>
+              <p className="mt-2 truncate text-xs font-semibold text-slate-500">
+                {item.detail}
+              </p>
+            </div>
+          );
+        })}
+      </div>
 
       <div className="mt-5 rounded-lg border border-[#DDEBE3] bg-[#F4FAF7] p-4">
         <p className="mb-2 text-sm font-bold text-civicNavy">AI 분석 요약</p>

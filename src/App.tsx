@@ -12,6 +12,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
+import { AICommandBar } from './components/AICommandBar';
 import { AICompanion, type AICompanionMessage } from './components/AICompanion';
 import { AIOperationPanel } from './components/AIOperationPanel';
 import { AnalysisPanel } from './components/AnalysisPanel';
@@ -453,6 +454,39 @@ function App() {
       }
     },
     [explainRequest, requests],
+  );
+
+  const handleAICommand = useCallback(
+    (command: 'brief' | 'resources' | 'document') => {
+      if (command === 'brief') {
+        setActiveMenu('analysis');
+        triggerAI({
+          title: '상황 브리핑 준비했습니다',
+          body: `${selectedRequest.location} 현장입니다. 우선순위는 ${selectedRequest.priority}, 핵심은 위치 확인과 공동 조치 범위 판단입니다.`,
+          chips: [selectedRequest.category, selectedRequest.priority, '현장 확인'],
+        });
+        return;
+      }
+
+      if (command === 'resources') {
+        setActiveMenu('resources');
+        triggerAI({
+          title: '추천 자원을 열었습니다',
+          body: `지금은 ${selectedResources.length}개 자원이 맞춰져 있어요. 먼저 필요한 인력과 차량부터 요청하면 실행 준비가 빨라집니다.`,
+          chips: [`${selectedResources.length}건`, '인력·장비', '지원 요청'],
+        });
+        return;
+      }
+
+      setDocumentOpen(true);
+      triggerAI({
+        title: '문서 초안을 열었습니다',
+        body: '협조공문, 지원계획서, 결과보고서 흐름으로 정리했습니다. 발표 때는 탭을 넘기며 자동 작성 느낌을 보여주면 좋습니다.',
+        chips: ['공문', '계획서', '보고서'],
+        tone: 'success',
+      });
+    },
+    [selectedRequest, selectedResources.length, triggerAI],
   );
 
   const handleCreateRequest = useCallback((input: RequestDraftInput) => {
@@ -1094,7 +1128,14 @@ function App() {
             </div>
           </header>
 
-          <div className="px-4 py-5 sm:px-6 lg:px-8">{activeView}</div>
+          <div className="px-4 py-5 sm:px-6 lg:px-8">
+            <AICommandBar
+              request={selectedRequest}
+              resources={selectedResources}
+              onCommand={handleAICommand}
+            />
+            {activeView}
+          </div>
         </main>
       </div>
 

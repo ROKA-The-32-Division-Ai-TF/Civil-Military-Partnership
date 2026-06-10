@@ -42,11 +42,11 @@ export function AICompanion({ message, pulse }: AICompanionProps) {
   }, [message.body, pulse]);
 
   return (
-    <aside className="fixed bottom-3 left-4 right-4 z-40 overflow-hidden rounded-2xl border border-[#DDEBE3] bg-white/95 text-slate-900 shadow-2xl shadow-slate-900/20 backdrop-blur-xl lg:bottom-4 lg:left-auto lg:right-4 lg:w-[360px]">
+    <aside className="fixed bottom-3 right-3 z-40 w-[min(330px,calc(100vw-1.5rem))] overflow-hidden rounded-2xl border border-[#DDEBE3] bg-white/95 text-slate-900 shadow-2xl shadow-slate-900/20 backdrop-blur-xl lg:bottom-4 lg:right-4">
       <div className={`h-1.5 bg-gradient-to-r ${tone}`} />
-      <div className="p-3.5">
+      <div className="p-3">
         <div className="flex items-start gap-3">
-          <div className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${tone} text-white shadow-lg shadow-blue-900/15`}>
+          <div className={`relative flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${tone} text-white shadow-lg shadow-blue-900/15`}>
             <span
               key={pulse}
               className="absolute inset-0 animate-ping rounded-2xl bg-publicGreen/20"
@@ -70,7 +70,15 @@ export function AICompanion({ message, pulse }: AICompanionProps) {
             <p className="mt-1 truncate text-sm font-black text-civicNavy">
               {message.title}
             </p>
-            <p className="mt-2 min-h-[42px] text-sm font-semibold leading-6 text-slate-700">
+            <p
+              className="mt-1 min-h-[36px] text-sm font-semibold leading-5 text-slate-700"
+              style={{
+                display: '-webkit-box',
+                WebkitBoxOrient: 'vertical',
+                WebkitLineClamp: 2,
+                overflow: 'hidden',
+              }}
+            >
               {typedBody}
               <span className="ml-0.5 inline-block h-4 w-1 translate-y-0.5 animate-pulse rounded bg-publicGreen" />
             </p>
