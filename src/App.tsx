@@ -1,9 +1,7 @@
 import {
-  Activity,
   ArrowRight,
   Bell,
   Bot,
-  Boxes,
   Building2,
   ChevronDown,
   CheckCircle2,
@@ -12,9 +10,9 @@ import {
   Handshake,
   Landmark,
   ShieldCheck,
-  Sparkles,
 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
+import { AICompanion, type AICompanionMessage } from './components/AICompanion';
 import { AIOperationPanel } from './components/AIOperationPanel';
 import { AnalysisPanel } from './components/AnalysisPanel';
 import { ActionChecklist } from './components/ActionChecklist';
@@ -35,6 +33,7 @@ import {
   collaborationRequests,
   processSteps,
   resourceRecommendations,
+  sidebarMenus,
   similarCases,
   type Category,
   type CollaborationRequest,
@@ -346,6 +345,29 @@ function App() {
   const [checklistState, setChecklistState] = useState<
     Record<string, Record<string, boolean>>
   >({});
+  const [aiCompanion, setAiCompanion] = useState<AICompanionMessage>({
+    title: 'AI 협업 분석관 대기 중',
+    body:
+      '지표, 요청, 지도 마커, 자원 카드를 선택하면 요청 의미와 다음 조치 근거를 바로 설명합니다.',
+    chips: ['상황 인식', '자원 매칭', '문서 초안'],
+  });
+  const [aiPulse, setAiPulse] = useState(0);
+
+  const triggerAI = useCallback((message: AICompanionMessage) => {
+    setAiCompanion(message);
+    setAiPulse((current) => current + 1);
+  }, []);
+
+  const explainRequest = useCallback(
+    (request: CollaborationRequest, source = '요청 선택') => {
+      triggerAI({
+        title: `${source}: ${request.category}`,
+        body: `${request.location}의 "${request.title}" 요청을 선택했습니다. AI는 요청기관, 위치, 우선순위, 필요 자원을 함께 비교해 세종시 주관 조치와 협력 군부대 지원 가능 범위를 정리합니다.`,
+        chips: [request.priority, request.category, '협업 매칭'],
+      });
+    },
+    [triggerAI],
+  );
 
   const selectedRequest = useMemo(
     () =>
@@ -387,16 +409,51 @@ function App() {
     });
   }, [requests.length]);
 
-  const handleSupportRequest = useCallback((resourceId: string) => {
-    setResourceStatuses((current) => ({
-      ...current,
-      [resourceId]: 'requested',
-    }));
-  }, []);
+  const handleSupportRequest = useCallback(
+    (resourceId: string) => {
+      const resource = selectedResources.find((item) => item.id === resourceId);
+
+      setResourceStatuses((current) => ({
+        ...current,
+        [resourceId]: 'requested',
+      }));
+
+      if (resource) {
+        triggerAI({
+          title: '지원 요청 완료',
+          body: `${resource.owner}의 "${resource.name}" 자원을 요청 상태로 전환했습니다. AI는 지원 가능일, 현장 접근성, 안전 통제 항목을 함께 묶어 실행 전 확인 목록으로 넘깁니다.`,
+          chips: ['자원 확정', resource.owner, '실행 준비'],
+          tone: 'success',
+        });
+      }
+    },
+    [selectedResources, triggerAI],
+  );
 
   const handleMenuSelect = useCallback((menuId: string) => {
     setActiveMenu(menuId);
-  }, []);
+    const menuLabel =
+      sidebarMenus.find((menu) => menu.id === menuId)?.label ?? '업무 화면';
+    const meta = viewMeta[menuId] ?? viewMeta.dashboard;
+
+    triggerAI({
+      title: `${menuLabel} 화면 열림`,
+      body: `${meta.description} 이 화면에서 선택하는 항목은 우측 분석, 문서 작성, 자원 요청 흐름과 연동됩니다.`,
+      chips: ['화면 전환', menuLabel, '업무 안내'],
+    });
+  }, [triggerAI]);
+
+  const handleSelectRequest = useCallback(
+    (requestId: string, source = '요청 선택') => {
+      const request = requests.find((item) => item.id === requestId);
+      setSelectedRequestId(requestId);
+
+      if (request) {
+        explainRequest(request, source);
+      }
+    },
+    [explainRequest, requests],
+  );
 
   const handleCreateRequest = useCallback((input: RequestDraftInput) => {
     const generatedCount = requests.length - collaborationRequests.length;
@@ -435,28 +492,37 @@ function App() {
     }));
     setSelectedRequestId(requestId);
     setActiveMenu('analysis');
-  }, [requests.length]);
+    triggerAI({
+      title: '신규 요청 분석 생성',
+      body: `"${generatedRequest.title}" 요청을 접수하고 ${input.category} 유형으로 분류했습니다. AI가 유사사례, 필요 자원, 협력기관 후보를 생성해 현장 지도와 분석 패널에 반영합니다.`,
+      chips: [input.category, input.priority, '분석 생성'],
+      tone: 'success',
+    });
+  }, [requests.length, triggerAI]);
 
   const handleToggleChecklistItem = useCallback(
     (itemId: string) => {
       setChecklistState((current) => {
         const currentRequestState = current[selectedRequest.id] ?? {};
+        const nextValue = !currentRequestState[itemId];
 
         return {
           ...current,
           [selectedRequest.id]: {
             ...currentRequestState,
-            [itemId]: !currentRequestState[itemId],
+            [itemId]: nextValue,
           },
         };
       });
+      triggerAI({
+        title: '실행 체크리스트 갱신',
+        body: `${selectedRequest.title}의 실행 전 확인 항목을 갱신했습니다. AI는 안전 통제, 현장 접근, 기관 회신 여부를 함께 보며 조치 준비도를 계산합니다.`,
+        chips: ['안전 확인', '기관 회신', '준비도 갱신'],
+        tone: 'success',
+      });
     },
-    [selectedRequest.id],
+    [selectedRequest.title, selectedRequest.id, triggerAI],
   );
-
-  const currentOperator =
-    operatorModes.find((mode) => mode.id === activeOperator) ?? operatorModes[0];
-  const page = viewMeta[activeMenu] ?? viewMeta.dashboard;
 
   const resetDemo = () => {
     setRequests(collaborationRequests);
@@ -465,6 +531,11 @@ function App() {
     setResourceStatuses({});
     setChecklistState({});
     setActiveMenu('dashboard');
+    triggerAI({
+      title: '업무 화면 초기화',
+      body: '생성 요청, 지원 요청 상태, 체크리스트를 초기 상태로 되돌렸습니다. 기본 대시보드에서 다시 요청 선택과 AI 분석 흐름을 확인할 수 있습니다.',
+      chips: ['상태 복원', '기본 데이터', '대시보드'],
+    });
   };
 
   const statusSummary = [
@@ -509,7 +580,17 @@ function App() {
     <div className="grid gap-5">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {dynamicStats.map((stat) => (
-          <StatCard key={stat.label} {...stat} />
+          <StatCard
+            key={stat.label}
+            {...stat}
+            onClick={() =>
+              triggerAI({
+                title: `${stat.label} 지표 분석`,
+                body: `${stat.label}는 현재 ${stat.value}입니다. AI는 월간 변화량과 처리 단계별 병목을 함께 비교해 우선 확인이 필요한 요청 묶음을 추립니다.`,
+                chips: ['지표 해석', stat.value, '우선순위'],
+              })
+            }
+          />
         ))}
       </div>
 
@@ -535,7 +616,18 @@ function App() {
 
             <div className="grid gap-3">
               {statusSummary.map(([label, count, ratio, color]) => (
-                <div key={label} className="grid grid-cols-[1fr_auto] items-center gap-3 text-sm">
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() =>
+                    triggerAI({
+                      title: `${label} 요청 묶음`,
+                      body: `${label} 상태는 ${count}으로 전체의 ${ratio}입니다. AI는 대기 시간이 긴 요청과 군 협력 검토가 필요한 요청을 먼저 분리해 담당자에게 제안합니다.`,
+                      chips: [label, count, ratio],
+                    })
+                  }
+                  className="grid grid-cols-[1fr_auto] items-center gap-3 rounded-lg px-2 py-1.5 text-left text-sm transition hover:bg-[#F7FAFF]"
+                >
                   <div className="flex items-center gap-2">
                     <span
                       className="h-3 w-3 rounded"
@@ -546,7 +638,7 @@ function App() {
                   <span className="font-bold text-civicNavy">
                     {count} <span className="font-medium text-slate-500">({ratio})</span>
                   </span>
-                </div>
+                </button>
               ))}
             </div>
           </div>
@@ -557,7 +649,7 @@ function App() {
             <h2 className="text-lg font-black text-civicNavy">최근 협업 요청 목록</h2>
             <button
               type="button"
-              onClick={() => setActiveMenu('requests')}
+              onClick={() => handleMenuSelect('requests')}
               className="inline-flex items-center gap-1 text-sm font-bold text-[#2563EB]"
             >
               전체 보기
@@ -574,7 +666,7 @@ function App() {
                   key={request.id}
                   type="button"
                   onClick={() => {
-                    setSelectedRequestId(request.id);
+                    handleSelectRequest(request.id, '최근 목록');
                     setActiveMenu('analysis');
                   }}
                   className="grid w-full gap-3 border-b border-slate-100 px-4 py-3 text-left transition last:border-b-0 hover:bg-[#F7FAFF] md:grid-cols-[110px_minmax(0,1fr)_120px_120px] md:items-center"
@@ -607,13 +699,24 @@ function App() {
           <h2 className="text-lg font-black text-civicNavy">협업 단계별 현황</h2>
           <div className="mt-5 grid grid-cols-5 gap-2">
             {stageSummary.map(([label, count], index) => (
-              <div key={label} className="min-w-0 text-center">
+              <button
+                key={label}
+                type="button"
+                onClick={() =>
+                  triggerAI({
+                    title: `${label} 단계 확인`,
+                    body: `${label} 단계에는 현재 ${count}이 있습니다. AI는 이 단계에서 필요한 승인, 기관 회신, 현장 안전 확인 항목을 자동으로 묶어 다음 조치 후보를 제시합니다.`,
+                    chips: [`${index + 1}단계`, count, '다음 조치'],
+                  })
+                }
+                className="min-w-0 rounded-lg p-1 text-center transition hover:bg-[#F7FAFF]"
+              >
                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg border border-blue-200 bg-[#F7FAFF] text-sm font-black text-[#2563EB]">
                   {index + 1}
                 </div>
                 <p className="mt-2 truncate text-xs font-bold text-civicNavy">{label}</p>
                 <p className="mt-1 text-sm font-black text-slate-700">{count}</p>
-              </div>
+              </button>
             ))}
           </div>
           <div className="mt-5 rounded-lg border border-slate-100 bg-[#FBFCFA] p-3 text-sm leading-6 text-slate-600">
@@ -625,7 +728,18 @@ function App() {
           <h2 className="text-lg font-black text-civicNavy">분야별 요청 현황</h2>
           <div className="mt-5 grid gap-3">
             {categorySummary.map(([label, count, ratio, color]) => (
-              <div key={label} className="grid grid-cols-[88px_minmax(0,1fr)_92px] items-center gap-3 text-sm">
+              <button
+                key={label}
+                type="button"
+                onClick={() =>
+                  triggerAI({
+                    title: `${label} 분야 분석`,
+                    body: `${label} 분야는 ${count}, 전체 ${ratio} 수준입니다. AI는 요청 문장과 위치를 기준으로 세종시 주관 업무와 협력 군부대 지원 가능 영역을 분리합니다.`,
+                    chips: [label, count, ratio],
+                  })
+                }
+                className="grid grid-cols-[88px_minmax(0,1fr)_92px] items-center gap-3 rounded-lg px-2 py-1.5 text-left text-sm transition hover:bg-[#F7FAFF]"
+              >
                 <span className="font-bold text-slate-600">{label}</span>
                 <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
                   <div
@@ -636,7 +750,7 @@ function App() {
                 <span className="text-right font-bold text-civicNavy">
                   {count} <span className="font-medium text-slate-500">({ratio})</span>
                 </span>
-              </div>
+              </button>
             ))}
           </div>
         </section>
@@ -644,7 +758,17 @@ function App() {
         <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-panel">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-lg font-black text-civicNavy">협력 기관 현황</h2>
-            <button type="button" className="text-sm font-bold text-[#2563EB]">
+            <button
+              type="button"
+              onClick={() =>
+                triggerAI({
+                  title: '협력기관 네트워크',
+                  body: '세종시가 요청을 주관하고 기관별 역할을 분리합니다. AI는 행정 지원, 현장 인력, 장비, 전문 자문을 조합해 과잉 동원 없이 필요한 범위만 추천합니다.',
+                  chips: ['기관 역할', '협업 조합', '중복 방지'],
+                })
+              }
+              className="text-sm font-bold text-[#2563EB]"
+            >
               전체 보기
             </button>
           </div>
@@ -655,11 +779,22 @@ function App() {
               <span>주요 역할</span>
             </div>
             {partnerSummary.map(([type, count, role]) => (
-              <div key={type} className="grid grid-cols-[1fr_80px_1.4fr] border-t border-slate-100 px-3 py-3 text-sm">
+              <button
+                key={type}
+                type="button"
+                onClick={() =>
+                  triggerAI({
+                    title: `${type} 역할 분석`,
+                    body: `${type}은 ${count}가 참여하며 주요 역할은 "${role}"입니다. AI는 요청 유형별로 필요한 역할만 골라 협력 조합을 추천합니다.`,
+                    chips: [type, count, '역할 매칭'],
+                  })
+                }
+                className="grid grid-cols-[1fr_80px_1.4fr] border-t border-slate-100 px-3 py-3 text-left text-sm transition hover:bg-[#F7FAFF]"
+              >
                 <span className="font-bold text-slate-700">{type}</span>
                 <span className="font-bold text-civicNavy">{count}</span>
                 <span className="text-slate-600">{role}</span>
-              </div>
+              </button>
             ))}
           </div>
         </section>
@@ -678,7 +813,14 @@ function App() {
                   <button
                     key={title}
                     type="button"
-                    onClick={() => setActiveMenu('analysis')}
+                    onClick={() => {
+                      setActiveMenu('analysis');
+                      triggerAI({
+                        title,
+                        body: `${detail} 선택된 요청 "${selectedRequest.title}"을 기준으로 관련 사례, 협력기관, 필요 자원, 예상 기간을 다시 계산합니다.`,
+                        chips: [action, selectedRequest.category, '재계산'],
+                      });
+                    }}
                     className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-left transition hover:border-[#2563EB] hover:bg-[#F7FAFF]"
                   >
                     <span className="block text-sm font-black text-civicNavy">{title}</span>
@@ -693,18 +835,18 @@ function App() {
             </div>
           </div>
         </section>
-        <AIOperationPanel request={selectedRequest} />
+        <AIOperationPanel request={selectedRequest} onExplain={triggerAI} />
       </div>
     </div>
   );
 
   const requestView = (
     <div className="grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-      <RequestComposer onCreateRequest={handleCreateRequest} />
+      <RequestComposer onCreateRequest={handleCreateRequest} onExplain={triggerAI} />
       <RequestTable
         requests={requests}
         selectedRequestId={selectedRequest.id}
-        onSelectRequest={setSelectedRequestId}
+        onSelectRequest={(requestId) => handleSelectRequest(requestId, '요청 목록')}
       />
     </div>
   );
@@ -715,11 +857,23 @@ function App() {
         <MapBoard
           requests={requests}
           selectedRequestId={selectedRequest.id}
-          onSelectRequest={setSelectedRequestId}
+          onSelectRequest={(requestId) => handleSelectRequest(requestId, '지도 마커')}
+          onExplain={triggerAI}
         />
-        <AnalysisPanel request={selectedRequest} onOpenDocument={() => setDocumentOpen(true)} />
+        <AnalysisPanel
+          request={selectedRequest}
+          onOpenDocument={() => {
+            setDocumentOpen(true);
+            triggerAI({
+              title: 'AI 자동 문서 생성',
+              body: `${selectedRequest.title} 요청을 기준으로 협조공문, 지원계획서, 결과보고서 초안을 생성했습니다. 담당자는 문구를 검토한 뒤 복사하거나 PDF 내보내기를 진행할 수 있습니다.`,
+              chips: ['공문 초안', '계획서', '결과보고서'],
+              tone: 'success',
+            });
+          }}
+        />
       </div>
-      <JointActionPlan request={selectedRequest} />
+      <JointActionPlan request={selectedRequest} onExplain={triggerAI} />
     </div>
   );
 
@@ -743,6 +897,7 @@ function App() {
         steps={processSteps}
         activeStepId={activeStepId}
         onStepSelect={setActiveStepId}
+        onExplain={triggerAI}
       />
       <section className="rounded-lg border border-white bg-white/[0.94] p-5 shadow-panel">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
@@ -810,7 +965,14 @@ function App() {
                 <button
                   key={mode.id}
                   type="button"
-                  onClick={() => setActiveOperator(mode.id)}
+                  onClick={() => {
+                    setActiveOperator(mode.id);
+                    triggerAI({
+                      title: `${mode.label} 관점 적용`,
+                      body: `${mode.description} 중심으로 화면 운용 관점을 전환했습니다. AI는 같은 요청도 역할에 따라 문서, 자원, 검토 항목의 우선순위를 다르게 안내합니다.`,
+                      chips: [mode.label, '운용 관점', '우선순위'],
+                    });
+                  }}
                   className={`flex items-center gap-3 rounded-lg border px-3 py-3 text-left transition ${
                     active
                       ? 'border-civicNavy bg-white text-civicNavy shadow-sm'
@@ -853,9 +1015,9 @@ function App() {
         : activeMenu === 'resources'
           ? resourceView
           : activeMenu === 'cases'
-            ? <SimilarCases request={selectedRequest} cases={similarCases} />
+            ? <SimilarCases request={selectedRequest} cases={similarCases} onExplain={triggerAI} />
             : activeMenu === 'documents'
-              ? <DocumentWorkspace request={selectedRequest} draft={documentDraft} />
+              ? <DocumentWorkspace request={selectedRequest} draft={documentDraft} onExplain={triggerAI} />
               : activeMenu === 'performance'
                 ? performanceView
                 : activeMenu === 'alerts'
@@ -872,44 +1034,63 @@ function App() {
         <main className="min-w-0 flex-1">
           <header className="border-b border-slate-200 bg-white px-5 py-4 sm:px-7 lg:px-8">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <h1 className="text-2xl font-black text-slate-950">
-                안녕하세요, 세종시 협업담당자님!
-              </h1>
-              <p className="mt-1 text-sm font-medium text-slate-500">
-                시민의 요청을 함께 해결하고 더 나은 세종을 만들어갑니다.
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <button
-                type="button"
-                className="relative flex h-11 w-11 items-center justify-center rounded-full bg-[#F5F7FE] text-civicNavy"
-                aria-label="알림"
-              >
-                <Bell className="h-5 w-5" />
-                <span className="absolute right-1 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-black text-white">
-                  3
-                </span>
-              </button>
-              <div className="flex items-center gap-3 rounded-lg px-2 py-1">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#EEF3FF] text-[#3157B7]">
-                  <CircleUserRound className="h-6 w-6" aria-hidden="true" />
-                </div>
-                <div>
-                  <p className="text-sm font-black text-civicNavy">세종시 협업담당자</p>
-                  <p className="text-xs font-semibold text-slate-500">세종특별자치시</p>
-                </div>
-                <ChevronDown className="h-4 w-4 text-slate-400" />
+              <div>
+                <h1 className="text-2xl font-black text-slate-950">
+                  안녕하세요, 세종시 협업담당자님!
+                </h1>
+                <p className="mt-1 text-sm font-medium text-slate-500">
+                  시민의 요청을 함께 해결하고 더 나은 세종을 만들어갑니다.
+                </p>
               </div>
-              <button
-                type="button"
-                onClick={() => setActiveMenu('requests')}
-                className="rounded-lg bg-civicNavy px-4 py-3 text-sm font-bold text-white transition hover:bg-[#12395F]"
-              >
-                새 요청 접수
-              </button>
-            </div>
+
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <button
+                  type="button"
+                  onClick={() => handleMenuSelect('alerts')}
+                  className="relative flex h-11 w-11 items-center justify-center rounded-full bg-[#F5F7FE] text-civicNavy transition hover:bg-[#EEF3FF]"
+                  aria-label="알림"
+                >
+                  <Bell className="h-5 w-5" />
+                  <span className="absolute right-1 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-black text-white">
+                    3
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveMenu('settings');
+                    triggerAI({
+                      title: '운용자 화면 설정',
+                      body: '세종시 공무원 관점과 민군작전장교 관점을 전환할 수 있습니다. 역할에 따라 확인해야 할 요청, 자원, 문서 항목을 다르게 보여주는 흐름입니다.',
+                      chips: ['운용자 관점', '업무 설정', '화면 전환'],
+                    });
+                  }}
+                  className="flex items-center gap-3 rounded-lg px-2 py-1 text-left transition hover:bg-[#F5F7FE]"
+                >
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#EEF3FF] text-[#3157B7]">
+                    <CircleUserRound className="h-6 w-6" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-black text-civicNavy">세종시 협업담당자</p>
+                    <p className="text-xs font-semibold text-slate-500">세종특별자치시</p>
+                  </div>
+                  <ChevronDown className="h-4 w-4 text-slate-400" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveMenu('requests');
+                    triggerAI({
+                      title: '새 요청 접수 준비',
+                      body: '요청 제목, 기관, 위치, 내용을 입력하면 AI가 협업 유형과 필요 자원을 자동으로 제안합니다. 예시 불러오기로 바로 분석 흐름을 확인할 수 있습니다.',
+                      chips: ['요청 접수', '자동 분류', '분석 생성'],
+                    });
+                  }}
+                  className="rounded-lg bg-civicNavy px-4 py-3 text-sm font-bold text-white transition hover:bg-[#12395F]"
+                >
+                  새 요청 접수
+                </button>
+              </div>
             </div>
           </header>
 
@@ -923,6 +1104,7 @@ function App() {
         draft={documentDraft}
         onClose={() => setDocumentOpen(false)}
       />
+      <AICompanion message={aiCompanion} pulse={aiPulse} />
     </div>
   );
 }

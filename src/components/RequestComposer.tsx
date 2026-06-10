@@ -6,9 +6,11 @@ import {
   type Priority,
   type RequestDraftInput,
 } from '../data';
+import type { AICompanionMessage } from './AICompanion';
 
 interface RequestComposerProps {
   onCreateRequest: (input: RequestDraftInput) => void;
+  onExplain?: (message: AICompanionMessage) => void;
 }
 
 const categories = Object.keys(categoryLegend) as Category[];
@@ -33,7 +35,7 @@ const sampleForm: RequestDraftInput = {
     '집중호우 이후 배수로에 토사가 쌓여 농경지 침수 우려가 있습니다. 세종시 현장 확인과 협력 군부대의 장비·인력 지원 가능성 검토가 필요합니다.',
 };
 
-export function RequestComposer({ onCreateRequest }: RequestComposerProps) {
+export function RequestComposer({ onCreateRequest, onExplain }: RequestComposerProps) {
   const [form, setForm] = useState<RequestDraftInput>(sampleForm);
   const [message, setMessage] = useState('');
 
@@ -75,6 +77,11 @@ export function RequestComposer({ onCreateRequest }: RequestComposerProps) {
           onClick={() => {
             setForm(sampleForm);
             setMessage('');
+            onExplain?.({
+              title: '예시 요청 입력',
+              body: '집중호우 이후 배수로 토사 제거 요청 예시를 불러왔습니다. AI 분석 생성 버튼을 누르면 재난복구 유형, 필요 자원, 협력기관 후보가 자동으로 구성됩니다.',
+              chips: ['예시 입력', '재난복구', '분석 준비'],
+            });
           }}
           className="inline-flex w-fit items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-civicNavy transition hover:border-publicGreen hover:text-publicGreen"
         >

@@ -2,11 +2,13 @@ import { Layers3, MapPin, Route, Satellite, ShieldCheck, UsersRound } from 'luci
 import type { PointerEvent } from 'react';
 import { useRef, useState } from 'react';
 import { categoryLegend, type CollaborationRequest } from '../data';
+import type { AICompanionMessage } from './AICompanion';
 
 interface MapBoardProps {
   requests: CollaborationRequest[];
   selectedRequestId: string;
   onSelectRequest: (requestId: string) => void;
+  onExplain?: (message: AICompanionMessage) => void;
 }
 
 const MAP_WIDTH = 760;
@@ -71,6 +73,7 @@ export function MapBoard({
   requests,
   selectedRequestId,
   onSelectRequest,
+  onExplain,
 }: MapBoardProps) {
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
@@ -111,10 +114,22 @@ export function MapBoard({
   };
 
   const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
-    if (dragState.current?.pointerId === event.pointerId) {
+    const current = dragState.current;
+
+    if (current?.pointerId === event.pointerId) {
+      const moved =
+        Math.abs(event.clientX - current.startX) + Math.abs(event.clientY - current.startY);
       dragState.current = null;
       setDragging(false);
       event.currentTarget.releasePointerCapture(event.pointerId);
+
+      if (moved > 14) {
+        onExplain?.({
+          title: '지도 범위 재분석',
+          body: '지도를 이동한 범위 안의 요청 위치를 다시 확인했습니다. AI는 선택 지역의 요청 밀도, 접근 동선, 공동 조치 필요성을 함께 재계산합니다.',
+          chips: ['지도 이동', '요청 밀도', '동선 확인'],
+        });
+      }
     }
   };
 

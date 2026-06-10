@@ -5,13 +5,15 @@ import {
   type CollaborationRequest,
   type SimilarCase,
 } from '../data';
+import type { AICompanionMessage } from './AICompanion';
 
 interface SimilarCasesProps {
   request: CollaborationRequest;
   cases: SimilarCase[];
+  onExplain?: (message: AICompanionMessage) => void;
 }
 
-export function SimilarCases({ request, cases }: SimilarCasesProps) {
+export function SimilarCases({ request, cases, onExplain }: SimilarCasesProps) {
   const [query, setQuery] = useState('');
 
   const filteredCases = useMemo(() => {
@@ -74,9 +76,17 @@ export function SimilarCases({ request, cases }: SimilarCasesProps) {
 
       <div className="mt-4 grid gap-3 md:grid-cols-2">
         {filteredCases.map((item) => (
-          <article
+          <button
             key={item.id}
-            className="rounded-lg border border-slate-200 bg-porcelain p-4"
+            type="button"
+            onClick={() =>
+              onExplain?.({
+                title: `유사사례 ${item.matchScore}% 일치`,
+                body: `"${item.title}" 사례는 ${request.category} 요청과 자원 구성과 조치 결과가 비슷합니다. AI는 이 사례의 결과와 투입 자원을 현재 요청의 판단 근거로 참고합니다.`,
+                chips: [`${item.matchScore}%`, item.category, '사례 근거'],
+              })
+            }
+            className="rounded-lg border border-slate-200 bg-porcelain p-4 text-left transition hover:-translate-y-0.5 hover:border-publicGreen/50 hover:bg-white hover:shadow-md"
           >
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -100,7 +110,7 @@ export function SimilarCases({ request, cases }: SimilarCasesProps) {
                 </span>
               ))}
             </div>
-          </article>
+          </button>
         ))}
       </div>
     </section>

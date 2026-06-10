@@ -1,11 +1,13 @@
 import { ArrowRight, Landmark, ShieldCheck, UsersRound } from 'lucide-react';
 import type { CollaborationRequest } from '../data';
+import type { AICompanionMessage } from './AICompanion';
 
 interface JointActionPlanProps {
   request: CollaborationRequest;
+  onExplain?: (message: AICompanionMessage) => void;
 }
 
-export function JointActionPlan({ request }: JointActionPlanProps) {
+export function JointActionPlan({ request, onExplain }: JointActionPlanProps) {
   const lanes = [
     {
       title: '세종특별자치시',
@@ -47,7 +49,17 @@ export function JointActionPlan({ request }: JointActionPlanProps) {
 
           return (
             <div key={lane.title} className="contents">
-              <article className="rounded-lg border border-slate-200 bg-porcelain p-4">
+              <button
+                type="button"
+                onClick={() =>
+                  onExplain?.({
+                    title: `${lane.title} 역할`,
+                    body: `${lane.role} 역할입니다. "${request.title}" 요청에서 ${lane.detail} 항목을 중심으로 공동 조치 흐름을 구성합니다.`,
+                    chips: [lane.title, lane.role, '역할 분담'],
+                  })
+                }
+                className="rounded-lg border border-slate-200 bg-porcelain p-4 text-left transition hover:-translate-y-0.5 hover:border-publicGreen/50 hover:bg-white hover:shadow-md"
+              >
                 <div className="flex items-start gap-3">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-publicGreen ring-1 ring-emerald-100">
                     <LaneIcon className="h-5 w-5" aria-hidden="true" />
@@ -58,7 +70,7 @@ export function JointActionPlan({ request }: JointActionPlanProps) {
                     <p className="mt-2 text-sm leading-6 text-slate-600">{lane.detail}</p>
                   </div>
                 </div>
-              </article>
+              </button>
               {index < lanes.length - 1 ? (
                 <div className="hidden items-center justify-center px-1 text-slate-300 lg:flex">
                   <ArrowRight className="h-5 w-5" aria-hidden="true" />

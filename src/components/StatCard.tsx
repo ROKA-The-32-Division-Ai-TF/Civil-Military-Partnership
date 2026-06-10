@@ -6,11 +6,19 @@ interface StatCardProps {
   caption: string;
   icon: LucideIcon;
   color: string;
+  onClick?: () => void;
 }
 
-export function StatCard({ label, value, caption, icon: Icon, color }: StatCardProps) {
-  return (
-    <div className="rounded-lg border bg-white p-5 shadow-panel backdrop-blur" style={{ borderColor: `${color}55` }}>
+export function StatCard({
+  label,
+  value,
+  caption,
+  icon: Icon,
+  color,
+  onClick,
+}: StatCardProps) {
+  const content = (
+    <>
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-black" style={{ color }}>{label}</p>
@@ -24,6 +32,28 @@ export function StatCard({ label, value, caption, icon: Icon, color }: StatCardP
         </div>
       </div>
       <p className="mt-4 text-sm font-semibold leading-5 text-slate-600">{caption}</p>
+    </>
+  );
+
+  const className =
+    'rounded-lg border bg-white p-5 text-left shadow-panel backdrop-blur transition';
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className={`${className} hover:-translate-y-0.5 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-100`}
+        style={{ borderColor: `${color}55` }}
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return (
+    <div className={className} style={{ borderColor: `${color}55` }}>
+      {content}
     </div>
   );
 }

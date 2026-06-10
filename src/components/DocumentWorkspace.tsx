@@ -1,12 +1,14 @@
 import { Clipboard, Download, FileText } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { CollaborationRequest, DocumentDraft } from '../data';
+import type { AICompanionMessage } from './AICompanion';
 
 type TabId = 'letter' | 'plan' | 'report';
 
 interface DocumentWorkspaceProps {
   request: CollaborationRequest;
   draft: DocumentDraft;
+  onExplain?: (message: AICompanionMessage) => void;
 }
 
 const tabs: Array<{ id: TabId; label: string }> = [
@@ -29,7 +31,11 @@ function copyTextFallback(text: string) {
   return copied;
 }
 
-export function DocumentWorkspace({ request, draft }: DocumentWorkspaceProps) {
+export function DocumentWorkspace({
+  request,
+  draft,
+  onExplain,
+}: DocumentWorkspaceProps) {
   const [activeTab, setActiveTab] = useState<TabId>('letter');
   const [status, setStatus] = useState('');
   const content = useMemo(() => draft[activeTab], [activeTab, draft]);
@@ -38,9 +44,20 @@ export function DocumentWorkspace({ request, draft }: DocumentWorkspaceProps) {
     try {
       await navigator.clipboard.writeText(content);
       setStatus('문서 내용이 복사되었습니다.');
+      onExplain?.({
+        title: '문서 복사 완료',
+        body: `${tabs.find((tab) => tab.id === activeTab)?.label} 내용이 복사되었습니다. AI 초안은 담당자 검토 후 실제 문서에 반영하는 판단 보조 자료입니다.`,
+        chips: ['문서 복사', '담당자 검토', '초안 활용'],
+        tone: 'success',
+      });
     } catch {
       copyTextFallback(content);
       setStatus('복사 요청이 처리되었습니다.');
+      onExplain?.({
+        title: '복사 요청 처리',
+        body: '브라우저 복사 권한을 우회해 문서 내용을 복사 요청으로 처리했습니다. 발표 환경에서도 버튼 동작을 확인할 수 있습니다.',
+        chips: ['복사 처리', '문서 초안', '권한 대응'],
+      });
     }
   };
 
@@ -66,7 +83,14 @@ export function DocumentWorkspace({ request, draft }: DocumentWorkspaceProps) {
           <button
             type="button"
             onClick={() =>
-              window.alert('PDF 내보내기 요청이 접수되었습니다.')
+              {
+                window.alert('PDF 내보내기 요청이 접수되었습니다.');
+                onExplain?.({
+                  title: 'PDF 내보내기 요청',
+                  body: '문서 내보내기 요청이 접수되었습니다. 현재 화면에서는 실제 파일 생성 대신 발표용 알림으로 처리하고, 초안 흐름만 시연합니다.',
+                  chips: ['PDF 요청', '발표용 처리', '문서화'],
+                });
+              }
             }
             className="inline-flex items-center gap-2 rounded-lg bg-civicNavy px-3 py-2 text-sm font-bold text-white transition hover:bg-[#12395F]"
           >
@@ -84,6 +108,11 @@ export function DocumentWorkspace({ request, draft }: DocumentWorkspaceProps) {
             onClick={() => {
               setActiveTab(tab.id);
               setStatus('');
+              onExplain?.({
+                title: `${tab.label} 초안 전환`,
+                body: `${request.title} 요청의 ${tab.label} 초안으로 전환했습니다. AI는 같은 분석 결과를 공문, 계획서, 보고서 형식에 맞춰 재구성합니다.`,
+                chips: [tab.label, '형식 전환', '자동 작성'],
+              });
             }}
             className={`shrink-0 rounded-md px-4 py-2 text-sm font-bold transition ${
               activeTab === tab.id

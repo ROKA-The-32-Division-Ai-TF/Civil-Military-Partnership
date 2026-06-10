@@ -1,12 +1,19 @@
 import type { ProcessStep } from '../data';
+import type { AICompanionMessage } from './AICompanion';
 
 interface ProcessFlowProps {
   steps: ProcessStep[];
   activeStepId: string;
   onStepSelect: (stepId: string) => void;
+  onExplain?: (message: AICompanionMessage) => void;
 }
 
-export function ProcessFlow({ steps, activeStepId, onStepSelect }: ProcessFlowProps) {
+export function ProcessFlow({
+  steps,
+  activeStepId,
+  onStepSelect,
+  onExplain,
+}: ProcessFlowProps) {
   const activeStep = steps.find((step) => step.id === activeStepId) ?? steps[0];
 
   return (
@@ -31,7 +38,14 @@ export function ProcessFlow({ steps, activeStepId, onStepSelect }: ProcessFlowPr
             <button
               key={step.id}
               type="button"
-              onClick={() => onStepSelect(step.id)}
+              onClick={() => {
+                onStepSelect(step.id);
+                onExplain?.({
+                  title: `${step.label} 단계 설명`,
+                  body: `${step.description} AI는 이 단계에서 담당자 확인 항목과 기관 간 전달 정보를 정리해 다음 단계로 넘길 준비를 합니다.`,
+                  chips: [`${index + 1}단계`, step.label, '절차 안내'],
+                });
+              }}
               className={`relative rounded-lg border p-4 text-left transition ${
                 active
                   ? 'border-[#D7C298] bg-[#FFF8EA] shadow-sm'

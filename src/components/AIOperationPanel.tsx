@@ -1,9 +1,11 @@
 import { BrainCircuit, CheckCircle2, Database, FileText, Network } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { CollaborationRequest } from '../data';
+import type { AICompanionMessage } from './AICompanion';
 
 interface AIOperationPanelProps {
   request: CollaborationRequest;
+  onExplain?: (message: AICompanionMessage) => void;
 }
 
 const aiSteps = [
@@ -29,7 +31,7 @@ const aiSteps = [
   },
 ];
 
-export function AIOperationPanel({ request }: AIOperationPanelProps) {
+export function AIOperationPanel({ request, onExplain }: AIOperationPanelProps) {
   const [activeStep, setActiveStep] = useState(0);
 
   useEffect(() => {
@@ -89,12 +91,21 @@ export function AIOperationPanel({ request }: AIOperationPanelProps) {
           const done = index < activeStep;
 
           return (
-            <div
+            <button
               key={step.label}
-              className={`flex items-center gap-3 rounded-lg border px-3 py-2.5 transition ${
+              type="button"
+              onClick={() => {
+                setActiveStep(index);
+                onExplain?.({
+                  title: `AI 단계 실행: ${step.label}`,
+                  body: `${step.detail} 단계입니다. "${request.title}" 요청의 ${request.category} 특성을 기준으로 판단 근거를 갱신하고 다음 조치 후보를 좁힙니다.`,
+                  chips: [step.label, request.category, '실시간 갱신'],
+                });
+              }}
+              className={`flex w-full items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition ${
                 active
                   ? 'border-publicGreen bg-[#F4FAF7]'
-                  : 'border-slate-200 bg-white'
+                  : 'border-slate-200 bg-white hover:border-publicGreen/60 hover:bg-[#F8FCFA]'
               }`}
             >
               <div
@@ -112,7 +123,7 @@ export function AIOperationPanel({ request }: AIOperationPanelProps) {
                 <p className="truncate text-sm font-bold text-civicNavy">{step.label}</p>
                 <p className="truncate text-xs text-slate-500">{step.detail}</p>
               </div>
-            </div>
+            </button>
           );
         })}
       </div>
