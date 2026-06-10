@@ -110,7 +110,7 @@ export function DocumentWorkspace({
               setStatus('');
               onExplain?.({
                 title: `${tab.label} 초안 전환`,
-                body: `${request.title} 요청의 ${tab.label} 초안으로 전환했습니다. AI는 같은 분석 결과를 공문, 계획서, 보고서 형식에 맞춰 재구성합니다.`,
+                body: `${request.title} 요청의 ${tab.label} 초안입니다. 같은 분석 결과를 문서 형식에 맞춰 보기 좋게 다시 정리해둘게요.`,
                 chips: [tab.label, '형식 전환', '자동 작성'],
               });
             }}

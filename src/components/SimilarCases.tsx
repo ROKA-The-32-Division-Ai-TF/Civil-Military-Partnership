@@ -82,7 +82,7 @@ export function SimilarCases({ request, cases, onExplain }: SimilarCasesProps) {
             onClick={() =>
               onExplain?.({
                 title: `유사사례 ${item.matchScore}% 일치`,
-                body: `"${item.title}" 사례는 ${request.category} 요청과 자원 구성과 조치 결과가 비슷합니다. AI는 이 사례의 결과와 투입 자원을 현재 요청의 판단 근거로 참고합니다.`,
+                body: `"${item.title}" 사례가 꽤 가깝습니다. 투입 자원과 결과를 현재 요청의 판단 근거로 가져오면 설명이 훨씬 탄탄해집니다.`,
                 chips: [`${item.matchScore}%`, item.category, '사례 근거'],
               })
             }

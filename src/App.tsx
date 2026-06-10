@@ -346,10 +346,10 @@ function App() {
     Record<string, Record<string, boolean>>
   >({});
   const [aiCompanion, setAiCompanion] = useState<AICompanionMessage>({
-    title: 'AI 협업 분석관 대기 중',
+    title: '담당자님, 제가 옆에서 볼게요',
     body:
-      '지표, 요청, 지도 마커, 자원 카드를 선택하면 요청 의미와 다음 조치 근거를 바로 설명합니다.',
-    chips: ['상황 인식', '자원 매칭', '문서 초안'],
+      '요청이나 지도를 눌러주세요. 현장 성격, 필요한 자원, 다음 조치를 짧게 정리해드릴게요.',
+    chips: ['요청 확인', '자원 추천', '문서 준비'],
   });
   const [aiPulse, setAiPulse] = useState(0);
 
@@ -362,7 +362,7 @@ function App() {
     (request: CollaborationRequest, source = '요청 선택') => {
       triggerAI({
         title: `${source}: ${request.category}`,
-        body: `${request.location}의 "${request.title}" 요청을 선택했습니다. AI는 요청기관, 위치, 우선순위, 필요 자원을 함께 비교해 세종시 주관 조치와 협력 군부대 지원 가능 범위를 정리합니다.`,
+        body: `네, ${request.location} 현장입니다. "${request.title}"은 세종시가 상황을 정리하고 협력 군부대 지원 범위를 확인하면 빠르게 움직일 수 있어요.`,
         chips: [request.priority, request.category, '협업 매칭'],
       });
     },
@@ -420,8 +420,8 @@ function App() {
 
       if (resource) {
         triggerAI({
-          title: '지원 요청 완료',
-          body: `${resource.owner}의 "${resource.name}" 자원을 요청 상태로 전환했습니다. AI는 지원 가능일, 현장 접근성, 안전 통제 항목을 함께 묶어 실행 전 확인 목록으로 넘깁니다.`,
+          title: '좋아요, 자원 요청 넣었습니다',
+          body: `"${resource.name}"은 지금 요청 완료 상태입니다. 다음은 지원 가능일, 이동 동선, 현장 안전 통제만 확인하면 됩니다.`,
           chips: ['자원 확정', resource.owner, '실행 준비'],
           tone: 'success',
         });
@@ -437,8 +437,8 @@ function App() {
     const meta = viewMeta[menuId] ?? viewMeta.dashboard;
 
     triggerAI({
-      title: `${menuLabel} 화면 열림`,
-      body: `${meta.description} 이 화면에서 선택하는 항목은 우측 분석, 문서 작성, 자원 요청 흐름과 연동됩니다.`,
+      title: `${menuLabel}로 이동했어요`,
+      body: `${meta.description} 필요한 항목을 눌러주시면 제가 바로 판단 포인트를 잡아드릴게요.`,
       chips: ['화면 전환', menuLabel, '업무 안내'],
     });
   }, [triggerAI]);
@@ -493,8 +493,8 @@ function App() {
     setSelectedRequestId(requestId);
     setActiveMenu('analysis');
     triggerAI({
-      title: '신규 요청 분석 생성',
-      body: `"${generatedRequest.title}" 요청을 접수하고 ${input.category} 유형으로 분류했습니다. AI가 유사사례, 필요 자원, 협력기관 후보를 생성해 현장 지도와 분석 패널에 반영합니다.`,
+      title: '요청 분석을 만들었습니다',
+      body: `"${generatedRequest.title}"은 ${input.category} 유형으로 보입니다. 지도에 위치를 올리고, 필요한 자원과 협력 흐름까지 준비해둘게요.`,
       chips: [input.category, input.priority, '분석 생성'],
       tone: 'success',
     });
@@ -515,8 +515,8 @@ function App() {
         };
       });
       triggerAI({
-        title: '실행 체크리스트 갱신',
-        body: `${selectedRequest.title}의 실행 전 확인 항목을 갱신했습니다. AI는 안전 통제, 현장 접근, 기관 회신 여부를 함께 보며 조치 준비도를 계산합니다.`,
+        title: '체크했습니다',
+        body: `좋습니다. "${selectedRequest.title}"의 준비 상태를 갱신했어요. 남은 건 안전, 동선, 기관 회신 순서로 보면 됩니다.`,
         chips: ['안전 확인', '기관 회신', '준비도 갱신'],
         tone: 'success',
       });
@@ -532,8 +532,8 @@ function App() {
     setChecklistState({});
     setActiveMenu('dashboard');
     triggerAI({
-      title: '업무 화면 초기화',
-      body: '생성 요청, 지원 요청 상태, 체크리스트를 초기 상태로 되돌렸습니다. 기본 대시보드에서 다시 요청 선택과 AI 분석 흐름을 확인할 수 있습니다.',
+      title: '처음 상태로 정리했습니다',
+      body: '화면을 다시 기본 상태로 돌렸습니다. 대시보드에서 요청 하나를 누르면 분석 흐름을 바로 이어갈 수 있어요.',
       chips: ['상태 복원', '기본 데이터', '대시보드'],
     });
   };
@@ -585,8 +585,8 @@ function App() {
             {...stat}
             onClick={() =>
               triggerAI({
-                title: `${stat.label} 지표 분석`,
-                body: `${stat.label}는 현재 ${stat.value}입니다. AI는 월간 변화량과 처리 단계별 병목을 함께 비교해 우선 확인이 필요한 요청 묶음을 추립니다.`,
+                title: `${stat.label} 확인`,
+                body: `현재 ${stat.value}입니다. 제가 변화 폭과 처리 단계를 같이 보고, 오늘 먼저 챙길 요청을 골라드릴게요.`,
                 chips: ['지표 해석', stat.value, '우선순위'],
               })
             }
@@ -621,8 +621,8 @@ function App() {
                   type="button"
                   onClick={() =>
                     triggerAI({
-                      title: `${label} 요청 묶음`,
-                      body: `${label} 상태는 ${count}으로 전체의 ${ratio}입니다. AI는 대기 시간이 긴 요청과 군 협력 검토가 필요한 요청을 먼저 분리해 담당자에게 제안합니다.`,
+                      title: `${label} 상태를 봤습니다`,
+                      body: `${count}, 전체 ${ratio}입니다. 오래 머문 요청과 협력 검토가 필요한 요청을 먼저 추려볼게요.`,
                       chips: [label, count, ratio],
                     })
                   }
@@ -705,7 +705,7 @@ function App() {
                 onClick={() =>
                   triggerAI({
                     title: `${label} 단계 확인`,
-                    body: `${label} 단계에는 현재 ${count}이 있습니다. AI는 이 단계에서 필요한 승인, 기관 회신, 현장 안전 확인 항목을 자동으로 묶어 다음 조치 후보를 제시합니다.`,
+                    body: `${label} 단계에는 ${count}이 있습니다. 지금 필요한 건 승인, 회신, 안전 확인 중 무엇인지 바로 좁혀보겠습니다.`,
                     chips: [`${index + 1}단계`, count, '다음 조치'],
                   })
                 }
@@ -734,7 +734,7 @@ function App() {
                 onClick={() =>
                   triggerAI({
                     title: `${label} 분야 분석`,
-                    body: `${label} 분야는 ${count}, 전체 ${ratio} 수준입니다. AI는 요청 문장과 위치를 기준으로 세종시 주관 업무와 협력 군부대 지원 가능 영역을 분리합니다.`,
+                    body: `${count}, 전체 ${ratio}입니다. 이 분야는 세종시가 맡을 일과 협력 군부대가 도울 일을 분리해서 보는 게 핵심입니다.`,
                     chips: [label, count, ratio],
                   })
                 }
@@ -763,7 +763,7 @@ function App() {
               onClick={() =>
                 triggerAI({
                   title: '협력기관 네트워크',
-                  body: '세종시가 요청을 주관하고 기관별 역할을 분리합니다. AI는 행정 지원, 현장 인력, 장비, 전문 자문을 조합해 과잉 동원 없이 필요한 범위만 추천합니다.',
+                  body: '세종시가 중심을 잡고, 필요한 역할만 연결합니다. 행정, 장비, 인력, 전문 지원을 과하지 않게 맞춰볼게요.',
                   chips: ['기관 역할', '협업 조합', '중복 방지'],
                 })
               }
@@ -785,7 +785,7 @@ function App() {
                 onClick={() =>
                   triggerAI({
                     title: `${type} 역할 분석`,
-                    body: `${type}은 ${count}가 참여하며 주요 역할은 "${role}"입니다. AI는 요청 유형별로 필요한 역할만 골라 협력 조합을 추천합니다.`,
+                    body: `${type}은 ${count}가 참여합니다. 이 역할은 "${role}"입니다. 필요한 순간에 필요한 만큼만 연결하겠습니다.`,
                     chips: [type, count, '역할 매칭'],
                   })
                 }
@@ -817,7 +817,7 @@ function App() {
                       setActiveMenu('analysis');
                       triggerAI({
                         title,
-                        body: `${detail} 선택된 요청 "${selectedRequest.title}"을 기준으로 관련 사례, 협력기관, 필요 자원, 예상 기간을 다시 계산합니다.`,
+                        body: `${detail} 지금 선택한 요청을 기준으로 사례, 기관, 자원, 예상 기간을 한 번에 다시 맞춰보겠습니다.`,
                         chips: [action, selectedRequest.category, '재계산'],
                       });
                     }}
@@ -865,8 +865,8 @@ function App() {
           onOpenDocument={() => {
             setDocumentOpen(true);
             triggerAI({
-              title: 'AI 자동 문서 생성',
-              body: `${selectedRequest.title} 요청을 기준으로 협조공문, 지원계획서, 결과보고서 초안을 생성했습니다. 담당자는 문구를 검토한 뒤 복사하거나 PDF 내보내기를 진행할 수 있습니다.`,
+              title: '문서 초안 준비 완료',
+              body: `"${selectedRequest.title}" 기준으로 협조공문, 지원계획서, 결과보고서를 정리했습니다. 문구만 확인하면 바로 발표 시연이 됩니다.`,
               chips: ['공문 초안', '계획서', '결과보고서'],
               tone: 'success',
             });
@@ -969,7 +969,7 @@ function App() {
                     setActiveOperator(mode.id);
                     triggerAI({
                       title: `${mode.label} 관점 적용`,
-                      body: `${mode.description} 중심으로 화면 운용 관점을 전환했습니다. AI는 같은 요청도 역할에 따라 문서, 자원, 검토 항목의 우선순위를 다르게 안내합니다.`,
+                      body: `${mode.description} 중심으로 보겠습니다. 같은 요청도 담당 역할에 맞춰 문서, 자원, 검토 순서를 다르게 잡아드릴게요.`,
                       chips: [mode.label, '운용 관점', '우선순위'],
                     });
                   }}
@@ -1061,7 +1061,7 @@ function App() {
                     setActiveMenu('settings');
                     triggerAI({
                       title: '운용자 화면 설정',
-                      body: '세종시 공무원 관점과 민군작전장교 관점을 전환할 수 있습니다. 역할에 따라 확인해야 할 요청, 자원, 문서 항목을 다르게 보여주는 흐름입니다.',
+                      body: '세종시 공무원 관점과 민군작전장교 관점을 바꿔볼 수 있어요. 역할에 맞춰 봐야 할 항목만 앞에 두겠습니다.',
                       chips: ['운용자 관점', '업무 설정', '화면 전환'],
                     });
                   }}
@@ -1082,7 +1082,7 @@ function App() {
                     setActiveMenu('requests');
                     triggerAI({
                       title: '새 요청 접수 준비',
-                      body: '요청 제목, 기관, 위치, 내용을 입력하면 AI가 협업 유형과 필요 자원을 자동으로 제안합니다. 예시 불러오기로 바로 분석 흐름을 확인할 수 있습니다.',
+                      body: '요청 제목, 기관, 위치만 넣어주세요. 유형 분류, 필요 자원, 협력 흐름은 제가 바로 초안으로 잡겠습니다.',
                       chips: ['요청 접수', '자동 분류', '분석 생성'],
                     });
                   }}

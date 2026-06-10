@@ -79,7 +79,7 @@ export function RequestComposer({ onCreateRequest, onExplain }: RequestComposerP
             setMessage('');
             onExplain?.({
               title: '예시 요청 입력',
-              body: '집중호우 이후 배수로 토사 제거 요청 예시를 불러왔습니다. AI 분석 생성 버튼을 누르면 재난복구 유형, 필요 자원, 협력기관 후보가 자동으로 구성됩니다.',
+              body: '집중호우 이후 배수로 토사 제거 예시를 넣어뒀습니다. 분석 생성만 누르면 재난복구 유형과 필요한 자원을 바로 잡아드릴게요.',
               chips: ['예시 입력', '재난복구', '분석 준비'],
             });
           }}

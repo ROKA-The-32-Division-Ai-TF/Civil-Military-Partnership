@@ -42,7 +42,7 @@ export function ProcessFlow({
                 onStepSelect(step.id);
                 onExplain?.({
                   title: `${step.label} 단계 설명`,
-                  body: `${step.description} AI는 이 단계에서 담당자 확인 항목과 기관 간 전달 정보를 정리해 다음 단계로 넘길 준비를 합니다.`,
+                  body: `${step.description} 이 단계에서는 담당자 확인 항목과 기관 간 전달 정보를 먼저 정리하면 됩니다.`,
                   chips: [`${index + 1}단계`, step.label, '절차 안내'],
                 });
               }}
