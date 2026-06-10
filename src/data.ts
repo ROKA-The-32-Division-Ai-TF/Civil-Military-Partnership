@@ -27,6 +27,8 @@ export interface CollaborationRequest {
   partners: string[];
   mapX: number;
   mapY: number;
+  lat?: number;
+  lng?: number;
 }
 
 export interface RequestDraftInput {
@@ -105,6 +107,8 @@ export const collaborationRequests: CollaborationRequest[] = [
     partners: ['세종특별자치시 재난관리부서', '협력 군부대'],
     mapX: 62,
     mapY: 72,
+    lat: 36.468,
+    lng: 127.281,
   },
   {
     id: 'river-cleanup-support',
@@ -121,6 +125,8 @@ export const collaborationRequests: CollaborationRequest[] = [
     partners: ['세종특별자치시 환경관리부서', '협력 군부대'],
     mapX: 55,
     mapY: 46,
+    lat: 36.562,
+    lng: 127.331,
   },
   {
     id: 'snow-route-support',
@@ -137,6 +143,8 @@ export const collaborationRequests: CollaborationRequest[] = [
     partners: ['세종특별자치시 도로관리부서', '협력 군부대'],
     mapX: 42,
     mapY: 18,
+    lat: 36.681,
+    lng: 127.196,
   },
   {
     id: 'farm-harvest-help',
@@ -153,6 +161,8 @@ export const collaborationRequests: CollaborationRequest[] = [
     partners: ['세종특별자치시 농업지원부서', '협력 군부대'],
     mapX: 33,
     mapY: 63,
+    lat: 36.498,
+    lng: 127.205,
   },
   {
     id: 'memorial-event-support',
@@ -169,6 +179,8 @@ export const collaborationRequests: CollaborationRequest[] = [
     partners: ['세종특별자치시 보훈업무부서', '협력 군부대'],
     mapX: 47,
     mapY: 26,
+    lat: 36.603,
+    lng: 127.298,
   },
   {
     id: 'safety-experience',
@@ -185,6 +197,8 @@ export const collaborationRequests: CollaborationRequest[] = [
     partners: ['세종특별자치시 안전교육부서', '협력 군부대'],
     mapX: 53,
     mapY: 66,
+    lat: 36.479,
+    lng: 127.289,
   },
   {
     id: 'sandbag-logistics',
@@ -201,6 +215,8 @@ export const collaborationRequests: CollaborationRequest[] = [
     partners: ['세종특별자치시 재난관리부서', '협력 군부대'],
     mapX: 66,
     mapY: 57,
+    lat: 36.529,
+    lng: 127.373,
   },
 ];
 

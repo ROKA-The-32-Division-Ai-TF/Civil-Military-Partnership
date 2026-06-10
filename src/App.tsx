@@ -9,10 +9,12 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
+import { AIOperationPanel } from './components/AIOperationPanel';
 import { AnalysisPanel } from './components/AnalysisPanel';
 import { ActionChecklist } from './components/ActionChecklist';
 import { DocumentModal } from './components/DocumentModal';
 import { DocumentWorkspace } from './components/DocumentWorkspace';
+import { JointActionPlan } from './components/JointActionPlan';
 import { MapBoard } from './components/MapBoard';
 import { ProcessFlow } from './components/ProcessFlow';
 import { RequestComposer } from './components/RequestComposer';
@@ -114,7 +116,7 @@ const viewMeta: Record<string, { title: string; description: string }> = {
   },
   settings: {
     title: '시스템 설정',
-    description: '운용자 관점과 데모 데이터를 조정합니다.',
+    description: '운용자 관점과 화면 상태를 조정합니다.',
   },
 };
 
@@ -459,65 +461,75 @@ function App() {
   };
 
   const dashboardView = (
-    <div className="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_420px]">
-      <section className="rounded-lg border border-white bg-white/[0.94] p-5 shadow-panel">
-        <div className="flex flex-col gap-4 border-b border-slate-100 pb-4 md:flex-row md:items-start md:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
-              선택 요청
-            </p>
-            <h2 className="mt-2 text-2xl font-bold leading-tight text-civicNavy">
-              {selectedRequest.title}
-            </h2>
-            <p className="mt-2 text-sm text-slate-500">
-              {selectedRequest.requester} · {selectedRequest.location} · {selectedRequest.date}
-            </p>
+    <div className="grid gap-5">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_420px]">
+        <section className="rounded-lg border border-white bg-white/[0.94] p-5 shadow-panel">
+          <div className="flex flex-col gap-4 border-b border-slate-100 pb-4 md:flex-row md:items-start md:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
+                선택 요청
+              </p>
+              <h2 className="mt-2 text-2xl font-bold leading-tight text-civicNavy">
+                {selectedRequest.title}
+              </h2>
+              <p className="mt-2 text-sm text-slate-500">
+                {selectedRequest.requester} · {selectedRequest.location} · {selectedRequest.date}
+              </p>
+            </div>
+            <span className="w-fit rounded-full bg-[#EAF4EF] px-3 py-1 text-xs font-bold text-publicGreen">
+              {selectedRequest.status}
+            </span>
           </div>
-          <span className="w-fit rounded-full bg-[#EAF4EF] px-3 py-1 text-xs font-bold text-publicGreen">
-            {selectedRequest.status}
-          </span>
-        </div>
 
-        <div className="mt-5 grid gap-3 md:grid-cols-3">
-          {[
-            {
-              title: 'AI 분석 보기',
-              detail: '요약과 군 협력 필요성 확인',
-              target: 'analysis',
-            },
-            {
-              title: '자원 요청',
-              detail: '추천 자원 상태 변경',
-              target: 'resources',
-            },
-            {
-              title: '문서 작성',
-              detail: '공문·계획서 초안 확인',
-              target: 'documents',
-            },
-          ].map((item) => (
-            <button
-              key={item.title}
-              type="button"
-              onClick={() => setActiveMenu(item.target)}
-              className="group rounded-lg border border-slate-200 bg-porcelain p-4 text-left transition hover:-translate-y-0.5 hover:border-publicGreen hover:bg-white hover:shadow-md"
-            >
-              <span className="block text-sm font-bold text-civicNavy">{item.title}</span>
-              <span className="mt-1 block text-xs leading-5 text-slate-500">{item.detail}</span>
-              <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-publicGreen">
-                열기
-                <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
-              </span>
-            </button>
-          ))}
-        </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            {[
+              {
+                title: 'AI 분석',
+                detail: '위치·위험도·군 협력 필요성 확인',
+                action: '분석',
+                target: 'analysis',
+              },
+              {
+                title: '자원 요청',
+                detail: '인력·장비 지원 상태 변경',
+                action: '요청',
+                target: 'resources',
+              },
+              {
+                title: '문서 작성',
+                detail: '협조공문·계획서 초안 생성',
+                action: '작성',
+                target: 'documents',
+              },
+            ].map((item) => (
+              <button
+                key={item.title}
+                type="button"
+                onClick={() => setActiveMenu(item.target)}
+                className="group rounded-lg border border-slate-200 bg-porcelain p-4 text-left transition hover:-translate-y-0.5 hover:border-publicGreen hover:bg-white hover:shadow-md"
+              >
+                <span className="block text-sm font-bold text-civicNavy">{item.title}</span>
+                <span className="mt-1 block text-xs leading-5 text-slate-500">{item.detail}</span>
+                <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-publicGreen">
+                  {item.action}
+                  <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+                </span>
+              </button>
+            ))}
+          </div>
 
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          {dynamicStats.map((stat) => (
-            <StatCard key={stat.label} {...stat} />
-          ))}
-        </div>
-      </section>
+        </section>
+
+        <AIOperationPanel request={selectedRequest} />
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {dynamicStats.map((stat) => (
+          <StatCard key={stat.label} {...stat} />
+        ))}
+      </div>
+
+      <JointActionPlan request={selectedRequest} />
 
       <section className="rounded-lg border border-white bg-white/[0.94] p-5 shadow-panel">
         <div className="flex items-center justify-between gap-3">
@@ -535,8 +547,8 @@ function App() {
             전체 보기
           </button>
         </div>
-        <div className="mt-4 grid gap-2">
-          {requests.slice(0, 5).map((request) => (
+        <div className="mt-4 grid gap-2 lg:grid-cols-2">
+          {requests.slice(0, 6).map((request) => (
             <button
               key={request.id}
               type="button"
@@ -570,13 +582,16 @@ function App() {
   );
 
   const analysisView = (
-    <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
-      <MapBoard
-        requests={requests}
-        selectedRequestId={selectedRequest.id}
-        onSelectRequest={setSelectedRequestId}
-      />
-      <AnalysisPanel request={selectedRequest} onOpenDocument={() => setDocumentOpen(true)} />
+    <div className="grid gap-5">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
+        <MapBoard
+          requests={requests}
+          selectedRequestId={selectedRequest.id}
+          onSelectRequest={setSelectedRequestId}
+        />
+        <AnalysisPanel request={selectedRequest} onOpenDocument={() => setDocumentOpen(true)} />
+      </div>
+      <JointActionPlan request={selectedRequest} />
     </div>
   );
 
@@ -654,7 +669,7 @@ function App() {
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
         설정
       </p>
-      <h2 className="mt-2 text-xl font-bold text-civicNavy">시연 환경 설정</h2>
+      <h2 className="mt-2 text-xl font-bold text-civicNavy">운용 환경 설정</h2>
       <div className="mt-5 grid gap-4">
         <div className="rounded-lg border border-slate-200 bg-porcelain p-4">
           <p className="text-sm font-bold text-civicNavy">운용자 화면</p>
@@ -686,16 +701,16 @@ function App() {
         </div>
 
         <div className="rounded-lg border border-slate-200 bg-porcelain p-4">
-          <p className="text-sm font-bold text-civicNavy">데모 데이터</p>
+          <p className="text-sm font-bold text-civicNavy">화면 상태</p>
           <p className="mt-1 text-sm leading-6 text-slate-500">
-            발표 중 생성한 요청, 체크리스트, 지원 요청 상태를 초기 상태로 되돌립니다.
+            생성한 요청, 체크리스트, 지원 요청 상태를 초기 상태로 되돌립니다.
           </p>
           <button
             type="button"
             onClick={resetDemo}
             className="mt-4 rounded-lg bg-civicNavy px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#12395F]"
           >
-            데모 초기화
+            화면 초기화
           </button>
         </div>
       </div>
@@ -730,7 +745,7 @@ function App() {
           <header className="mb-4 flex flex-col gap-3 rounded-lg border border-slate-200 bg-white px-4 py-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-publicGreen">
-                여민군 · 데모 모드
+                여민군 통합 관제
               </p>
               <h1 className="mt-1 text-2xl font-bold text-civicNavy">{page.title}</h1>
               <p className="mt-1 text-sm text-slate-500">{page.description}</p>

@@ -66,7 +66,7 @@ export function DocumentWorkspace({ request, draft }: DocumentWorkspaceProps) {
           <button
             type="button"
             onClick={() =>
-              window.alert('시연용 데모에서는 PDF 내보내기 요청이 접수된 것으로 처리됩니다.')
+              window.alert('PDF 내보내기 요청이 접수되었습니다.')
             }
             className="inline-flex items-center gap-2 rounded-lg bg-civicNavy px-3 py-2 text-sm font-bold text-white transition hover:bg-[#12395F]"
           >

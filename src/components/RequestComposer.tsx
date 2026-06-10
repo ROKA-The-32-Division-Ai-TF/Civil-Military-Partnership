@@ -161,7 +161,7 @@ export function RequestComposer({ onCreateRequest }: RequestComposerProps) {
           <p className="text-sm font-semibold text-publicGreen">{message}</p>
         ) : (
           <p className="text-sm text-slate-500">
-            실제 API 없이 입력값 기반 더미 분석을 생성합니다.
+            입력 내용을 바탕으로 AI 분석 결과를 생성합니다.
           </p>
         )}
         <button
