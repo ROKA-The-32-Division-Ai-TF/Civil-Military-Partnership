@@ -50,6 +50,9 @@ export function MapBoard({
 
   useEffect(() => {
     setMapLoaded(false);
+    const fallbackTimer = window.setTimeout(() => setMapLoaded(true), 2200);
+
+    return () => window.clearTimeout(fallbackTimer);
   }, [selectedRequest.id]);
 
   return (
@@ -80,6 +83,23 @@ export function MapBoard({
               referrerPolicy="no-referrer-when-downgrade"
               onLoad={() => setMapLoaded(true)}
             />
+            {mapLoaded ? (
+              <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 flex -translate-x-1/2 -translate-y-full flex-col items-center">
+                <div className="mb-2 rounded-full border border-white/70 bg-civicNavy px-3 py-1 text-xs font-black text-white shadow-lg shadow-slate-900/20">
+                  선택 현장
+                </div>
+                <div
+                  className="flex h-12 w-12 items-center justify-center rounded-full border-4 border-white text-white shadow-2xl shadow-slate-900/30"
+                  style={{ backgroundColor: selectedPalette.color }}
+                >
+                  <MapPin className="h-6 w-6" aria-hidden="true" />
+                </div>
+                <div
+                  className="mt-1 h-3 w-3 rotate-45 border-b-4 border-r-4 border-white"
+                  style={{ backgroundColor: selectedPalette.color }}
+                />
+              </div>
+            ) : null}
             {!mapLoaded ? (
               <div className="absolute inset-0 flex items-center justify-center bg-[#EDF5F1]">
                 <div className="mx-6 max-w-sm rounded-lg border border-[#D8E1DA] bg-white/95 p-5 text-center shadow-panel">

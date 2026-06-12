@@ -38,7 +38,7 @@ export function Sidebar({ activeMenu, onMenuSelect }: SidebarProps) {
           </div>
           <div>
             <p className="text-xl font-black leading-tight tracking-normal">여민군</p>
-            <p className="text-xs font-semibold text-blue-100">세종시-군 협력 행정 플랫폼</p>
+            <p className="text-xs font-semibold text-blue-100">세종시·군 협력 행정 플랫폼</p>
           </div>
         </div>
       </div>

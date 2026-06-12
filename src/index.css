@@ -48,3 +48,51 @@ a:focus-visible {
     width: 18%;
   }
 }
+
+@keyframes scanSweep {
+  0% {
+    transform: translateY(-45%);
+    opacity: 0;
+  }
+
+  18%,
+  72% {
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: translateY(145%);
+    opacity: 0;
+  }
+}
+
+.ai-scan-surface {
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    radial-gradient(circle at 18% 22%, rgba(42, 164, 111, 0.16), transparent 28%),
+    radial-gradient(circle at 82% 62%, rgba(64, 132, 255, 0.14), transparent 30%);
+  background-size:
+    42px 42px,
+    42px 42px,
+    100% 100%,
+    100% 100%;
+}
+
+.ai-scan-surface::after {
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: 34%;
+  content: '';
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(123, 222, 173, 0.18) 45%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(123, 222, 173, 0.12) 55%,
+    transparent 100%
+  );
+  animation: scanSweep 5.2s ease-in-out infinite;
+}

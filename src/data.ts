@@ -76,6 +76,7 @@ export const sidebarMenus: SidebarMenu[] = [
   { id: 'requests', label: '요청 접수' },
   { id: 'analysis', label: '현장 지도' },
   { id: 'resources', label: '실행 관리' },
+  { id: 'cases', label: '사례 검색' },
   { id: 'documents', label: '문서 작성' },
   { id: 'performance', label: '성과 분석' },
 ];

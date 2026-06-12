@@ -18,6 +18,7 @@ import { AnalysisPanel } from './components/AnalysisPanel';
 import { ActionChecklist } from './components/ActionChecklist';
 import { DocumentModal } from './components/DocumentModal';
 import { DocumentWorkspace } from './components/DocumentWorkspace';
+import { ExperienceConsole, type OperationMode } from './components/ExperienceConsole';
 import { JointActionPlan } from './components/JointActionPlan';
 import { MapBoard } from './components/MapBoard';
 import { ProcessFlow } from './components/ProcessFlow';
@@ -331,6 +332,7 @@ function formatToday() {
 function App() {
   const [activeMenu, setActiveMenu] = useState('dashboard');
   const [activeOperator, setActiveOperator] = useState(operatorModes[0].id);
+  const [operationMode, setOperationMode] = useState<OperationMode>('civil');
   const [requests, setRequests] = useState<CollaborationRequest[]>(collaborationRequests);
   const [recommendations, setRecommendations] =
     useState<Record<string, RecommendationResource[]>>(resourceRecommendations);
@@ -358,13 +360,18 @@ function App() {
 
   const explainRequest = useCallback(
     (request: CollaborationRequest, source = '요청 선택') => {
+      const modeDetail =
+        operationMode === 'civil'
+          ? '세종시 관점에서는 접수 근거, 담당부서, 협력기관 회신 순서를 먼저 정리하면 됩니다.'
+          : '군용 관점에서는 지원 타당성, 임무 영향, 장병 안전, 가용 자원 범위를 먼저 판단하면 됩니다.';
+
       triggerAI({
         title: `${source}: ${request.category}`,
-        body: `${request.location} 현장입니다. 세종시는 통제와 행정 조정을 맡고, 협력 군부대는 인력·장비 지원 가능 범위를 검토하면 됩니다.`,
-        chips: [request.priority, request.category, '군 협력 검토'],
+        body: `${request.location} 현장입니다. ${modeDetail} 이후 세종시와 협력 군부대의 역할을 분리해 공동 조치안을 만들겠습니다.`,
+        chips: [request.priority, request.category, operationMode === 'civil' ? '행정 조정' : '지원 검토'],
       });
     },
-    [triggerAI],
+    [operationMode, triggerAI],
   );
 
   const selectedRequest = useMemo(
@@ -418,8 +425,8 @@ function App() {
 
       if (resource) {
         triggerAI({
-          title: '좋아요, 자원 요청 넣었습니다',
-          body: `"${resource.name}"은 지금 요청 완료 상태입니다. 다음은 지원 가능일, 이동 동선, 현장 안전 통제만 확인하면 됩니다.`,
+          title: '자원 요청을 등록했습니다',
+          body: `"${resource.name}"는 요청 완료 상태입니다. 다음은 지원 가능일, 이동 동선, 현장 안전 통제만 확인하면 됩니다.`,
           chips: ['자원 확정', resource.owner, '실행 준비'],
           tone: 'success',
         });
@@ -427,6 +434,11 @@ function App() {
     },
     [selectedResources, triggerAI],
   );
+
+  const handleModeChange = useCallback((mode: OperationMode) => {
+    setOperationMode(mode);
+    setActiveOperator(mode === 'civil' ? 'civil' : 'liaison');
+  }, []);
 
   const handleMenuSelect = useCallback((menuId: string) => {
     setActiveMenu(menuId);
@@ -607,8 +619,52 @@ function App() {
     ['예상 소요 기간', '우선 처리 기준 평균 1.5일이 소요됩니다.', '상세 보기'],
   ];
 
+  const operatorProfile =
+    operationMode === 'civil'
+      ? {
+          name: '세종시 협업담당관',
+          detail: '세종특별자치시 · 시민 요청 접수',
+        }
+      : {
+          name: '민군작전장교',
+          detail: '협력 군부대 · 지원 타당성 검토',
+        };
+
   const dashboardView = (
     <div className="grid gap-5">
+      <ExperienceConsole
+        mode={operationMode}
+        requests={requests}
+        selectedRequest={selectedRequest}
+        onModeChange={handleModeChange}
+        onSelectRequest={(requestId) => handleSelectRequest(requestId, '지역문제 스캔')}
+        onOpenRequests={() => {
+          setActiveMenu('requests');
+          triggerAI({
+            title: '시민 요청 접수 화면을 열었습니다',
+            body: '제목, 기관, 위치만 입력하면 AI가 요청 유형과 협력 필요성을 먼저 분류합니다. 이후 담당부서, 군 협력 검토, 문서 초안까지 이어서 설계합니다.',
+            chips: ['요청 접수', '자동 분류', '협업 설계'],
+          });
+        }}
+        onOpenMap={() => {
+          setActiveMenu('analysis');
+          triggerAI({
+            title: 'AI 협업 설계 화면을 열었습니다',
+            body: `${selectedRequest.location} 현장을 기준으로 Google 지도, 세종시 조치 범위, 협력 군부대 지원 가능성을 함께 확인합니다.`,
+            chips: ['현장지도', selectedRequest.category, '역할 분담'],
+          });
+        }}
+        onOpenDocuments={() => {
+          setActiveMenu('documents');
+          triggerAI({
+            title: '문서 자동화 화면을 열었습니다',
+            body: '협조공문, 지원계획서, 결과보고서 초안을 같은 요청 기준으로 자동 정리했습니다. 발표 시에는 탭만 바꾸면 흐름이 바로 보입니다.',
+            chips: ['협조공문', '지원계획서', '결과보고서'],
+            tone: 'success',
+          });
+        }}
+        onExplain={triggerAI}
+      />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {dynamicStats.map((stat) => (
           <StatCard
@@ -847,7 +903,13 @@ function App() {
                     key={title}
                     type="button"
                     onClick={() => {
-                      setActiveMenu('analysis');
+                      if (title === '유사 사례 추천') {
+                        setActiveMenu('cases');
+                      } else if (title === '필요 자원 예측') {
+                        setActiveMenu('resources');
+                      } else {
+                        setActiveMenu('analysis');
+                      }
                       triggerAI({
                         title,
                         body: `${detail} 지금 선택한 요청을 기준으로 사례, 기관, 자원, 예상 기간을 한 번에 다시 맞춰보겠습니다.`,
@@ -1000,6 +1062,7 @@ function App() {
                   type="button"
                   onClick={() => {
                     setActiveOperator(mode.id);
+                    setOperationMode(mode.id === 'civil' ? 'civil' : 'military');
                     triggerAI({
                       title: `${mode.label} 관점 적용`,
                       body: `${mode.description} 중심으로 보겠습니다. 같은 요청도 담당 역할에 맞춰 문서, 자원, 검토 순서를 다르게 잡아드릴게요.`,
@@ -1069,10 +1132,10 @@ function App() {
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <h1 className="text-2xl font-black text-slate-950">
-                  민·관·군 협업상황실
+                  여민군 AI 협업관제센터
                 </h1>
                 <p className="mt-1 text-sm font-medium text-slate-500">
-                  세종시 접수, 군 지원 검토, 현장 실행까지 한 화면에서 처리합니다.
+                  시민 요청부터 AI 협업 설계, 군 지원 검토, 문서 자동화까지 한 화면에서 처리합니다.
                 </p>
               </div>
 
@@ -1104,9 +1167,9 @@ function App() {
                     <CircleUserRound className="h-6 w-6" aria-hidden="true" />
                   </div>
                   <div>
-                    <p className="text-sm font-black text-civicNavy">민군협력담당관</p>
+                    <p className="text-sm font-black text-civicNavy">{operatorProfile.name}</p>
                     <p className="text-xs font-semibold text-slate-500">
-                      세종특별자치시 · 협력 군부대
+                      {operatorProfile.detail}
                     </p>
                   </div>
                   <ChevronDown className="h-4 w-4 text-slate-400" />
@@ -1130,12 +1193,14 @@ function App() {
           </header>
 
           <div className="px-4 py-5 sm:px-6 lg:px-8">
-            <AICommandBar
-              request={selectedRequest}
-              resources={selectedResources}
-              message={aiCompanion}
-              onCommand={handleAICommand}
-            />
+            {activeMenu === 'dashboard' ? null : (
+              <AICommandBar
+                request={selectedRequest}
+                resources={selectedResources}
+                message={aiCompanion}
+                onCommand={handleAICommand}
+              />
+            )}
             {activeView}
           </div>
         </main>
