@@ -59,7 +59,7 @@ export function AICompanion({ message, pulse }: AICompanionProps) {
 
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <p className="truncate text-[11px] font-black uppercase tracking-[0.12em] text-publicGreen">
+              <p className="text-[11px] font-black uppercase tracking-[0.12em] text-publicGreen">
                 여민 AI 비서
               </p>
               <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#EAF4EF] px-2 py-0.5 text-[10px] font-black text-publicGreen ring-1 ring-emerald-100">
@@ -67,7 +67,7 @@ export function AICompanion({ message, pulse }: AICompanionProps) {
                 확인 중
               </span>
             </div>
-            <p className="mt-1 truncate text-sm font-black text-civicNavy">
+            <p className="mt-1 text-sm font-black leading-5 text-civicNavy">
               {message.title}
             </p>
             <p
@@ -98,7 +98,7 @@ export function AICompanion({ message, pulse }: AICompanionProps) {
                 ) : (
                   <Sparkles className="h-3.5 w-3.5 text-[#2563EB]" aria-hidden="true" />
                 )}
-                <span className="truncate">{chip}</span>
+                <span>{chip}</span>
               </div>
               <div className="mt-2 h-1 overflow-hidden rounded-full bg-slate-200">
                 <div

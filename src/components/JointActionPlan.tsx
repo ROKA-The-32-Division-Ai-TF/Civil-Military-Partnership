@@ -65,7 +65,7 @@ export function JointActionPlan({ request, onExplain }: JointActionPlanProps) {
                     <LaneIcon className="h-5 w-5" aria-hidden="true" />
                   </div>
                   <div className="min-w-0">
-                    <h3 className="truncate text-sm font-bold text-civicNavy">{lane.title}</h3>
+                    <h3 className="text-sm font-bold leading-5 text-civicNavy">{lane.title}</h3>
                     <p className="mt-1 text-xs font-bold text-publicGreen">{lane.role}</p>
                     <p className="mt-2 text-sm leading-6 text-slate-600">{lane.detail}</p>
                   </div>

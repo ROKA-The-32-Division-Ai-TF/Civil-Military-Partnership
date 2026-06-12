@@ -83,15 +83,15 @@ export function AnalysisPanel({ request, onOpenDocument }: AnalysisPanelProps) {
                   <Icon className="h-4 w-4" aria-hidden="true" />
                 </span>
                 <span className="min-w-0">
-                  <span className="block truncate text-xs font-bold text-slate-500">
+                  <span className="block text-xs font-bold leading-4 text-slate-500">
                     {item.label}
                   </span>
-                  <span className="block truncate text-sm font-black text-civicNavy">
+                  <span className="block text-sm font-black leading-5 text-civicNavy">
                     {item.value}
                   </span>
                 </span>
               </div>
-              <p className="mt-2 truncate text-xs font-semibold text-slate-500">
+              <p className="mt-2 text-xs font-semibold leading-4 text-slate-500">
                 {item.detail}
               </p>
             </div>

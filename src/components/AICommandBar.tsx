@@ -1,6 +1,5 @@
 import {
   BrainCircuit,
-  ChevronRight,
   FileText,
   Network,
   Sparkles,
@@ -20,19 +19,19 @@ interface AICommandBarProps {
 const commandItems = [
   {
     id: 'brief',
-    label: '상황 브리핑',
-    detail: '핵심 판단',
+    label: '브리핑',
+    detail: '상황 판단',
     icon: BrainCircuit,
   },
   {
     id: 'resources',
-    label: '자원 검토',
+    label: '자원',
     detail: '인력·장비',
     icon: Network,
   },
   {
     id: 'document',
-    label: '문서 작성',
+    label: '문서',
     detail: '공문 초안',
     icon: FileText,
   },
@@ -66,21 +65,13 @@ export function AICommandBar({
                 {request.priority}
               </span>
             </div>
-            <h2 className="mt-1 truncate text-sm font-black text-civicNavy">
+            <h2 className="mt-1 text-sm font-black leading-5 text-civicNavy">
               {request.title}
             </h2>
-            <p
-              className="mt-1 min-h-[32px] text-xs font-semibold leading-4 text-slate-500"
-              style={{
-                display: '-webkit-box',
-                WebkitBoxOrient: 'vertical',
-                WebkitLineClamp: 2,
-                overflow: 'hidden',
-              }}
-            >
+            <p className="mt-1 text-xs font-semibold leading-5 text-slate-600">
               {message.title} · {message.body}
             </p>
-            <p className="mt-1 truncate text-xs font-semibold text-slate-400">
+            <p className="mt-1 text-xs font-semibold leading-4 text-slate-500">
               추천 자원: {primaryResource}
             </p>
           </div>
@@ -101,14 +92,13 @@ export function AICommandBar({
                   <Icon className="h-4 w-4" aria-hidden="true" />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-bold text-civicNavy">
+                  <span className="block text-sm font-bold leading-5 text-civicNavy">
                     {item.label}
                   </span>
-                  <span className="mt-0.5 block truncate text-xs font-semibold text-slate-500">
+                  <span className="mt-0.5 block text-[11px] font-semibold leading-4 text-slate-500">
                     {item.detail}
                   </span>
                 </span>
-                <ChevronRight className="h-4 w-4 shrink-0 text-slate-300 group-hover:text-[#2563EB]" />
               </button>
             );
           })}

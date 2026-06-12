@@ -43,7 +43,7 @@ export function Sidebar({ activeMenu, onMenuSelect }: SidebarProps) {
         </div>
       </div>
 
-      <nav className="flex gap-2 overflow-x-auto px-3 py-3 [scrollbar-width:none] lg:flex-col lg:gap-1 lg:overflow-visible lg:px-4 lg:py-5 [&::-webkit-scrollbar]:hidden">
+      <nav className="grid grid-cols-3 gap-2 px-3 py-3 sm:grid-cols-6 lg:flex lg:flex-col lg:gap-1 lg:px-4 lg:py-5">
         {sidebarMenus.map((menu) => {
           const Icon = menuIcons[menu.id] ?? LayoutDashboard;
           const isActive = activeMenu === menu.id;
@@ -53,14 +53,14 @@ export function Sidebar({ activeMenu, onMenuSelect }: SidebarProps) {
               key={menu.id}
               type="button"
               onClick={() => onMenuSelect(menu.id)}
-              className={`flex shrink-0 items-center gap-3 rounded-lg px-3 py-3 text-left text-sm font-bold transition ${
+              className={`flex min-h-[48px] items-center justify-center gap-2 rounded-lg px-2 py-2.5 text-center text-xs font-bold leading-tight transition sm:flex-col lg:min-h-0 lg:flex-row lg:justify-start lg:gap-3 lg:px-3 lg:py-3 lg:text-left lg:text-sm ${
                 isActive
                   ? 'bg-[#1E63B6] text-white shadow-lg shadow-blue-950/20'
                   : 'text-blue-100 hover:bg-white/10 hover:text-white'
               }`}
             >
               <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
-              <span className="truncate">{menu.label}</span>
+              <span>{menu.label}</span>
             </button>
           );
         })}

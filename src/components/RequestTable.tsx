@@ -102,7 +102,7 @@ export function RequestTable({
                         className="h-2.5 w-2.5 shrink-0 rounded-full"
                         style={{ backgroundColor: palette.color }}
                       />
-                      <span className="font-semibold text-civicNavy">{request.title}</span>
+                      <span className="font-semibold leading-5 text-civicNavy">{request.title}</span>
                     </div>
                   </td>
                   <td className="border-b border-slate-100 px-3 py-4 text-slate-700">

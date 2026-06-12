@@ -8,12 +8,14 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  word-break: keep-all;
 }
 
 body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+  overflow-wrap: break-word;
   background:
     linear-gradient(180deg, #f8fbff 0%, #fbfcfa 38%, #f4f8f6 100%);
 }
@@ -21,6 +23,12 @@ body {
 button,
 a {
   -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid rgba(31, 122, 92, 0.28);
+  outline-offset: 2px;
 }
 
 @keyframes fadeIn {

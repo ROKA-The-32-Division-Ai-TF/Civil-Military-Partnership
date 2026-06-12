@@ -120,8 +120,8 @@ export function AIOperationPanel({ request, onExplain }: AIOperationPanelProps) 
                 )}
               </div>
               <div className="min-w-0">
-                <p className="truncate text-sm font-bold text-civicNavy">{step.label}</p>
-                <p className="truncate text-xs text-slate-500">{step.detail}</p>
+                <p className="text-sm font-bold leading-5 text-civicNavy">{step.label}</p>
+                <p className="text-xs leading-4 text-slate-500">{step.detail}</p>
               </div>
             </button>
           );

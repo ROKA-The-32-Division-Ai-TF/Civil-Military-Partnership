@@ -709,10 +709,10 @@ function App() {
                     {statusLabel}
                   </span>
                   <span className="min-w-0">
-                    <span className="block truncate text-sm font-black text-civicNavy">
+                    <span className="block text-sm font-black leading-5 text-civicNavy">
                       {request.title}
                     </span>
-                    <span className="mt-1 block truncate text-xs text-slate-500">
+                    <span className="mt-1 block text-xs leading-5 text-slate-500">
                       {request.category} · {request.location}
                     </span>
                   </span>
@@ -728,7 +728,7 @@ function App() {
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.95fr)]">
         <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-panel">
           <h2 className="text-lg font-black text-civicNavy">협업 단계별 현황</h2>
-          <div className="mt-5 grid grid-cols-5 gap-2">
+          <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-5">
             {stageSummary.map(([label, count], index) => (
               <button
                 key={label}
@@ -745,7 +745,9 @@ function App() {
                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg border border-blue-200 bg-[#F7FAFF] text-sm font-black text-[#2563EB]">
                   {index + 1}
                 </div>
-                <p className="mt-2 truncate text-xs font-bold text-civicNavy">{label}</p>
+                <p className="mt-2 min-h-[32px] text-xs font-bold leading-4 text-civicNavy sm:min-h-0">
+                  {label}
+                </p>
                 <p className="mt-1 text-sm font-black text-slate-700">{count}</p>
               </button>
             ))}
