@@ -2,7 +2,6 @@ import {
   ArrowRight,
   Bell,
   Bot,
-  Building2,
   ChevronDown,
   CheckCircle2,
   ClipboardCheck,
@@ -65,10 +64,10 @@ const stats = [
     color: '#7C3AED',
   },
   {
-    label: '참여 기관 수',
-    value: '36개',
-    caption: '이번 달 +4개 (12.5%↑)',
-    icon: Building2,
+    label: '군 협력 검토',
+    value: '15건',
+    caption: '안전·임무 범위 확인 중',
+    icon: ShieldCheck,
     color: '#EA7A12',
   },
 ];
@@ -98,8 +97,8 @@ const viewMeta: Record<string, { title: string; description: string }> = {
     description: '새 요청을 입력하거나 기존 요청을 검색합니다.',
   },
   analysis: {
-    title: 'AI 상황지도',
-    description: '선택 요청의 위치, 필요 자원, 군 협력 필요성을 확인합니다.',
+    title: '민군협력 상황지도',
+    description: '선택 요청의 위치, 필요 자원, 군 지원 검토 범위를 확인합니다.',
   },
   resources: {
     title: '자원 요청',
@@ -347,9 +346,9 @@ function App() {
     Record<string, Record<string, boolean>>
   >({});
   const [aiCompanion, setAiCompanion] = useState<AICompanionMessage>({
-    title: '담당자님, 제가 옆에서 볼게요',
+    title: '요청을 선택하면 바로 정리합니다',
     body:
-      '요청이나 지도를 눌러주세요. 현장 성격, 필요한 자원, 다음 조치를 짧게 정리해드릴게요.',
+      '현장 성격, 세종시 조치, 협력 군부대 검토 범위, 문서 초안을 순서대로 정리합니다.',
     chips: ['요청 확인', '자원 추천', '문서 준비'],
   });
 
@@ -361,8 +360,8 @@ function App() {
     (request: CollaborationRequest, source = '요청 선택') => {
       triggerAI({
         title: `${source}: ${request.category}`,
-        body: `네, ${request.location} 현장입니다. "${request.title}"은 세종시가 상황을 정리하고 협력 군부대 지원 범위를 확인하면 빠르게 움직일 수 있어요.`,
-        chips: [request.priority, request.category, '협업 매칭'],
+        body: `${request.location} 현장입니다. 세종시는 통제와 행정 조정을 맡고, 협력 군부대는 인력·장비 지원 가능 범위를 검토하면 됩니다.`,
+        chips: [request.priority, request.category, '군 협력 검토'],
       });
     },
     [triggerAI],
@@ -392,16 +391,16 @@ function App() {
     const generatedCount = Math.max(0, requests.length - collaborationRequests.length);
 
     return stats.map((stat) => {
-      if (stat.label === '진행 중 협업') {
-        return { ...stat, value: `${12 + generatedCount}건` };
+      if (stat.label === '전체 요청 건수') {
+        return { ...stat, value: `${128 + generatedCount}건` };
       }
 
-      if (stat.label === '지원 가능 자원') {
-        return { ...stat, value: `${156 + generatedCount * 3}건` };
+      if (stat.label === '진행 중인 협업') {
+        return { ...stat, value: `${27 + generatedCount}건` };
       }
 
-      if (stat.label === 'AI 추천 완료') {
-        return { ...stat, value: `${9 + generatedCount}건` };
+      if (stat.label === '군 협력 검토') {
+        return { ...stat, value: `${15 + generatedCount}건` };
       }
 
       return stat;
@@ -479,7 +478,7 @@ function App() {
       setDocumentOpen(true);
       triggerAI({
         title: '문서 초안을 열었습니다',
-        body: '협조공문, 지원계획서, 결과보고서 흐름으로 정리했습니다. 발표 때는 탭을 넘기며 자동 작성 느낌을 보여주면 좋습니다.',
+        body: '협조공문, 지원계획서, 결과보고서 순서로 정리했습니다. 필요한 문서를 선택해 검토하면 됩니다.',
         chips: ['공문', '계획서', '보고서'],
         tone: 'success',
       });
@@ -556,7 +555,7 @@ function App() {
     [selectedRequest.title, selectedRequest.id, triggerAI],
   );
 
-  const resetDemo = () => {
+  const resetWorkspace = () => {
     setRequests(collaborationRequests);
     setRecommendations(resourceRecommendations);
     setSelectedRequestId(collaborationRequests[0].id);
@@ -1029,7 +1028,7 @@ function App() {
           </p>
           <button
             type="button"
-            onClick={resetDemo}
+            onClick={resetWorkspace}
             className="mt-4 rounded-lg bg-civicNavy px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#12395F]"
           >
             화면 초기화
@@ -1068,10 +1067,10 @@ function App() {
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <h1 className="text-2xl font-black text-slate-950">
-                  안녕하세요, 세종시 협업담당자님!
+                  민·관·군 협업상황실
                 </h1>
                 <p className="mt-1 text-sm font-medium text-slate-500">
-                  시민의 요청을 함께 해결하고 더 나은 세종을 만들어갑니다.
+                  세종시 접수, 군 지원 검토, 현장 실행까지 한 화면에서 처리합니다.
                 </p>
               </div>
 
@@ -1093,7 +1092,7 @@ function App() {
                     setActiveMenu('settings');
                     triggerAI({
                       title: '운용자 화면 설정',
-                      body: '세종시 공무원 관점과 민군작전장교 관점을 바꿔볼 수 있어요. 역할에 맞춰 봐야 할 항목만 앞에 두겠습니다.',
+                      body: '세종시 공무원 관점과 민군작전장교 관점을 바꿔볼 수 있습니다. 역할별로 먼저 봐야 할 항목을 정리합니다.',
                       chips: ['운용자 관점', '업무 설정', '화면 전환'],
                     });
                   }}
@@ -1103,8 +1102,10 @@ function App() {
                     <CircleUserRound className="h-6 w-6" aria-hidden="true" />
                   </div>
                   <div>
-                    <p className="text-sm font-black text-civicNavy">세종시 협업담당자</p>
-                    <p className="text-xs font-semibold text-slate-500">세종특별자치시</p>
+                    <p className="text-sm font-black text-civicNavy">민군협력담당관</p>
+                    <p className="text-xs font-semibold text-slate-500">
+                      세종특별자치시 · 협력 군부대
+                    </p>
                   </div>
                   <ChevronDown className="h-4 w-4 text-slate-400" />
                 </button>

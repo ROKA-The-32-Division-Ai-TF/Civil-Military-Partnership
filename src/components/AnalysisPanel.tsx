@@ -40,7 +40,7 @@ export function AnalysisPanel({ request, onOpenDocument }: AnalysisPanelProps) {
       <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
-            AI 판단 보조
+            AI 공동판단
           </p>
           <h2 className="mt-2 text-lg font-bold leading-snug text-civicNavy">
             {request.title}

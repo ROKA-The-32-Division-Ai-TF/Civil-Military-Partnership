@@ -20,20 +20,20 @@ interface AICommandBarProps {
 const commandItems = [
   {
     id: 'brief',
-    label: '브리핑',
-    detail: '상황 확인',
+    label: '상황 브리핑',
+    detail: '핵심 판단',
     icon: BrainCircuit,
   },
   {
     id: 'resources',
-    label: '자원',
-    detail: '추천 보기',
+    label: '자원 검토',
+    detail: '인력·장비',
     icon: Network,
   },
   {
     id: 'document',
-    label: '문서',
-    detail: '초안 열기',
+    label: '문서 작성',
+    detail: '공문 초안',
     icon: FileText,
   },
 ] as const;
@@ -57,7 +57,7 @@ export function AICommandBar({
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <p className="text-[11px] font-black uppercase tracking-[0.14em] text-publicGreen">
-                AI 판단 보조
+                AI 공동판단
               </p>
               <span className="rounded-full bg-[#EAF4EF] px-2 py-0.5 text-[11px] font-black text-publicGreen">
                 {request.category}
@@ -69,7 +69,15 @@ export function AICommandBar({
             <h2 className="mt-1 truncate text-sm font-black text-civicNavy">
               {request.title}
             </h2>
-            <p className="mt-1 truncate text-xs font-semibold text-slate-500">
+            <p
+              className="mt-1 min-h-[32px] text-xs font-semibold leading-4 text-slate-500"
+              style={{
+                display: '-webkit-box',
+                WebkitBoxOrient: 'vertical',
+                WebkitLineClamp: 2,
+                overflow: 'hidden',
+              }}
+            >
               {message.title} · {message.body}
             </p>
             <p className="mt-1 truncate text-xs font-semibold text-slate-400">

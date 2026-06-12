@@ -73,7 +73,7 @@ export function AIOperationPanel({ request, onExplain }: AIOperationPanelProps) 
             </p>
           </div>
           <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-publicGreen ring-1 ring-emerald-100">
-            가동중
+            가동 중
           </span>
         </div>
         <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">

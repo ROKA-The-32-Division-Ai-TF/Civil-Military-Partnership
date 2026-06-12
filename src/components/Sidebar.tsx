@@ -38,7 +38,7 @@ export function Sidebar({ activeMenu, onMenuSelect }: SidebarProps) {
           </div>
           <div>
             <p className="text-xl font-black leading-tight tracking-normal">여민군</p>
-            <p className="text-xs font-semibold text-blue-100">시민과 군이 함께 만드는 세종</p>
+            <p className="text-xs font-semibold text-blue-100">세종시-군 협력 행정 플랫폼</p>
           </div>
         </div>
       </div>
@@ -70,12 +70,12 @@ export function Sidebar({ activeMenu, onMenuSelect }: SidebarProps) {
         <div className="rounded-lg border border-white/15 bg-white/10 p-4 shadow-2xl shadow-black/10">
           <p className="text-sm font-black text-white">여민군이란?</p>
           <p className="mt-3 text-xs leading-6 text-blue-100">
-            시민의 요청을 기반으로 민·관·군이 함께 협력하여 지역문제를 해결하는 협업 플랫폼입니다.
+            시민 요청을 세종시가 접수하고, 필요한 경우 협력 군부대 지원 가능성을 함께 검토하는 행정 플랫폼입니다.
           </p>
           <div className="mt-4 grid gap-2 rounded-lg border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.16),rgba(255,255,255,0.04))] p-3 text-xs font-bold text-blue-50">
             <span>세종시 접수</span>
-            <span>AI 협업 추천</span>
-            <span>민·관·군 공동 조치</span>
+            <span>군 협력 검토</span>
+            <span>현장 공동 조치</span>
           </div>
         </div>
       </div>
