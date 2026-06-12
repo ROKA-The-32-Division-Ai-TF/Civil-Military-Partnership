@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { AICommandBar } from './components/AICommandBar';
-import { AICompanion, type AICompanionMessage } from './components/AICompanion';
+import type { AICompanionMessage } from './components/AICompanion';
 import { AIOperationPanel } from './components/AIOperationPanel';
 import { AnalysisPanel } from './components/AnalysisPanel';
 import { ActionChecklist } from './components/ActionChecklist';
@@ -352,11 +352,9 @@ function App() {
       '요청이나 지도를 눌러주세요. 현장 성격, 필요한 자원, 다음 조치를 짧게 정리해드릴게요.',
     chips: ['요청 확인', '자원 추천', '문서 준비'],
   });
-  const [aiPulse, setAiPulse] = useState(0);
 
   const triggerAI = useCallback((message: AICompanionMessage) => {
     setAiCompanion(message);
-    setAiPulse((current) => current + 1);
   }, []);
 
   const explainRequest = useCallback(
@@ -1132,6 +1130,7 @@ function App() {
             <AICommandBar
               request={selectedRequest}
               resources={selectedResources}
+              message={aiCompanion}
               onCommand={handleAICommand}
             />
             {activeView}
@@ -1145,7 +1144,6 @@ function App() {
         draft={documentDraft}
         onClose={() => setDocumentOpen(false)}
       />
-      <AICompanion message={aiCompanion} pulse={aiPulse} />
     </div>
   );
 }
