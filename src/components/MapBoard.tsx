@@ -56,11 +56,11 @@ export function MapBoard({
   }, [selectedRequest.id]);
 
   return (
-    <section className="min-w-0 rounded-lg border border-white bg-white/[0.94] p-5 shadow-panel backdrop-blur">
+    <section className="mode-panel min-w-0 rounded-lg border p-5 shadow-panel backdrop-blur">
       <div className="flex flex-col gap-3 border-b border-slate-100 pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg font-bold text-civicNavy">세종특별자치시 Google 현장지도</h2>
-          <p className="mt-1 text-sm text-slate-500">
+          <h2 className="mode-title-text text-lg font-bold">세종특별자치시 Google 현장지도</h2>
+          <p className="mode-subtext mt-1 text-sm">
             현장을 선택하면 Google 지도가 해당 위치로 이동합니다. 지도 안에서 직접 드래그와 확대·축소가 가능합니다.
           </p>
         </div>
@@ -115,11 +115,11 @@ export function MapBoard({
             ) : null}
           </div>
 
-          <div className="mt-3 rounded-lg border border-[#D8E1DA] bg-[#FBFCFA] p-4">
+          <div className="mode-card-soft mt-3 rounded-lg border p-4">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-xs font-semibold text-publicGreen">선택 현장</p>
+                  <p className="mode-accent-text text-xs font-semibold">선택 현장</p>
                   <span
                     className="w-fit rounded-full px-2.5 py-1 text-xs font-bold"
                     style={{
@@ -130,10 +130,10 @@ export function MapBoard({
                     {selectedRequest.status}
                   </span>
                 </div>
-                <p className="mt-2 text-sm font-bold leading-5 text-civicNavy">
+                <p className="mode-title-text mt-2 text-sm font-bold leading-5">
                   {selectedRequest.title}
                 </p>
-                <p className="mt-1 text-xs leading-5 text-slate-500">
+                <p className="mode-subtext mt-1 text-xs leading-5">
                   {selectedRequest.requester} · {selectedRequest.location}
                 </p>
               </div>
@@ -169,12 +169,12 @@ export function MapBoard({
         </div>
 
         <div className="grid gap-4">
-          <div className="rounded-lg border border-[#D8E1DA] bg-[#FBFCFA] p-4">
-            <h3 className="flex items-center gap-2 text-sm font-bold text-civicNavy">
+          <div className="mode-card-soft rounded-lg border p-4">
+            <h3 className="mode-title-text flex items-center gap-2 text-sm font-bold">
               <Layers3 className="h-4 w-4 text-publicGreen" aria-hidden="true" />
               협업 판단 기준
             </h3>
-            <div className="mt-4 grid gap-2 text-sm text-slate-600">
+            <div className="mode-body-text mt-4 grid gap-2 text-sm">
               <span className="flex items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full bg-publicGreen" />
                 시민 요청 위치
@@ -190,9 +190,9 @@ export function MapBoard({
             </div>
           </div>
 
-          <div className="rounded-lg border border-[#D8E1DA] bg-[#FBFCFA] p-4">
-            <h3 className="text-sm font-bold text-civicNavy">현장 조치 흐름</h3>
-            <div className="mt-4 grid gap-3 text-sm text-slate-600">
+          <div className="mode-card-soft rounded-lg border p-4">
+            <h3 className="mode-title-text text-sm font-bold">현장 조치 흐름</h3>
+            <div className="mode-body-text mt-4 grid gap-3 text-sm">
               <div className="flex items-start gap-2">
                 <UsersRound className="mt-0.5 h-4 w-4 shrink-0 text-publicGreen" />
                 <span>시민·읍면동 요청 위치 확인</span>
@@ -208,8 +208,8 @@ export function MapBoard({
             </div>
           </div>
 
-          <div className="rounded-lg border border-[#D8E1DA] bg-[#FBFCFA] p-4">
-            <h3 className="text-sm font-bold text-civicNavy">현장 선택</h3>
+          <div className="mode-card-soft rounded-lg border p-4">
+            <h3 className="mode-title-text text-sm font-bold">현장 선택</h3>
             <div className="mt-4 grid max-h-[330px] gap-2 overflow-y-auto pr-1">
               {requests.map((request) => {
                 const palette = categoryLegend[request.category];
@@ -220,10 +220,8 @@ export function MapBoard({
                     key={request.id}
                     type="button"
                     onClick={() => onSelectRequest(request.id)}
-                    className={`rounded-lg border px-3 py-2.5 text-left transition ${
-                      selected
-                        ? 'border-publicGreen bg-[#F4FAF7] shadow-sm'
-                        : 'border-white bg-white hover:border-[#DDEBE3] hover:shadow-sm'
+                    className={`mode-map-choice rounded-lg border px-3 py-2.5 text-left transition ${
+                      selected ? 'is-selected' : ''
                     }`}
                   >
                     <div className="flex items-center gap-2">

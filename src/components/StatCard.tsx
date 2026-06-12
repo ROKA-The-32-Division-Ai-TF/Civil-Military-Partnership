@@ -36,7 +36,7 @@ export function StatCard({
   );
 
   const className =
-    'rounded-lg border bg-white p-5 text-left shadow-panel backdrop-blur transition';
+    'stat-card rounded-lg border p-5 text-left shadow-panel backdrop-blur transition';
 
   if (onClick) {
     return (

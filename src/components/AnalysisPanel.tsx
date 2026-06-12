@@ -36,13 +36,13 @@ export function AnalysisPanel({ request, onOpenDocument }: AnalysisPanelProps) {
   ];
 
   return (
-    <section className="rounded-lg border border-white bg-white/[0.92] p-5 shadow-panel backdrop-blur">
+    <section className="mode-panel rounded-lg border p-5 shadow-panel backdrop-blur">
       <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-publicGreen">
+          <p className="mode-accent-text text-xs font-semibold uppercase tracking-[0.16em]">
             AI 공동판단
           </p>
-          <h2 className="mt-2 text-lg font-bold leading-snug text-civicNavy">
+          <h2 className="mode-title-text mt-2 text-lg font-bold leading-snug">
             {request.title}
           </h2>
         </div>
@@ -56,16 +56,16 @@ export function AnalysisPanel({ request, onOpenDocument }: AnalysisPanelProps) {
 
       <dl className="mt-4 grid gap-3 text-sm">
         <div className="grid grid-cols-[88px_1fr] gap-3">
-          <dt className="text-slate-500">요청 기관</dt>
-          <dd className="font-semibold text-slate-800">{request.requester}</dd>
+          <dt className="mode-subtext">요청 기관</dt>
+          <dd className="mode-body-text font-semibold">{request.requester}</dd>
         </div>
         <div className="grid grid-cols-[88px_1fr] gap-3">
-          <dt className="text-slate-500">요청 일자</dt>
-          <dd className="font-semibold text-slate-800">{request.date}</dd>
+          <dt className="mode-subtext">요청 일자</dt>
+          <dd className="mode-body-text font-semibold">{request.date}</dd>
         </div>
         <div className="grid grid-cols-[88px_1fr] gap-3">
-          <dt className="text-slate-500">위치</dt>
-          <dd className="font-semibold text-slate-800">{request.location}</dd>
+          <dt className="mode-subtext">위치</dt>
+          <dd className="mode-body-text font-semibold">{request.location}</dd>
         </div>
       </dl>
 
@@ -76,22 +76,22 @@ export function AnalysisPanel({ request, onOpenDocument }: AnalysisPanelProps) {
           return (
             <div
               key={item.label}
-              className="rounded-lg border border-[#DDEBE3] bg-[#FBFCFA] p-3"
+              className="mode-card-soft rounded-lg border p-3"
             >
               <div className="flex items-center gap-2">
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#EAF4EF] text-publicGreen">
                   <Icon className="h-4 w-4" aria-hidden="true" />
                 </span>
                 <span className="min-w-0">
-                  <span className="block text-xs font-bold leading-4 text-slate-500">
+                  <span className="mode-subtext block text-xs font-bold leading-4">
                     {item.label}
                   </span>
-                  <span className="block text-sm font-black leading-5 text-civicNavy">
+                  <span className="mode-title-text block text-sm font-black leading-5">
                     {item.value}
                   </span>
                 </span>
               </div>
-              <p className="mt-2 text-xs font-semibold leading-4 text-slate-500">
+              <p className="mode-subtext mt-2 text-xs font-semibold leading-4">
                 {item.detail}
               </p>
             </div>
@@ -99,14 +99,14 @@ export function AnalysisPanel({ request, onOpenDocument }: AnalysisPanelProps) {
         })}
       </div>
 
-      <div className="mt-5 rounded-lg border border-[#DDEBE3] bg-[#F4FAF7] p-4">
-        <p className="mb-2 text-sm font-bold text-civicNavy">AI 분석 요약</p>
-        <p className="text-sm leading-6 text-slate-700">{request.aiSummary}</p>
+      <div className="mode-card-soft mt-5 rounded-lg border p-4">
+        <p className="mode-title-text mb-2 text-sm font-bold">AI 분석 요약</p>
+        <p className="mode-body-text text-sm leading-6">{request.aiSummary}</p>
       </div>
 
       <div className="mt-5">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-bold text-civicNavy">우선순위</p>
+          <p className="mode-title-text text-sm font-bold">우선순위</p>
           <span className={`rounded-full px-3 py-1 text-xs font-bold ${priorityStyle[request.priority]}`}>
             {request.priority}
           </span>
@@ -114,7 +114,7 @@ export function AnalysisPanel({ request, onOpenDocument }: AnalysisPanelProps) {
       </div>
 
       <div className="mt-5">
-        <p className="text-sm font-bold text-civicNavy">필요 자원</p>
+        <p className="mode-title-text text-sm font-bold">필요 자원</p>
         <div className="mt-3 flex flex-wrap gap-2">
           {request.neededResources.map((resource) => (
             <span
@@ -128,12 +128,12 @@ export function AnalysisPanel({ request, onOpenDocument }: AnalysisPanelProps) {
       </div>
 
       <div className="mt-5">
-        <p className="text-sm font-bold text-civicNavy">협업 가능 기관</p>
+        <p className="mode-title-text text-sm font-bold">협업 가능 기관</p>
         <div className="mt-3 grid gap-2">
           {request.partners.map((partner) => (
             <div
               key={partner}
-              className="rounded-lg border border-slate-200 bg-porcelain px-3 py-2 text-sm font-medium text-slate-700"
+              className="mode-card-soft rounded-lg border px-3 py-2 text-sm font-medium"
             >
               {partner}
             </div>

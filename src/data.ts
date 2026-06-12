@@ -8,6 +8,8 @@ export type Category =
 
 export type Priority = '긴급' | '높음' | '보통';
 
+export type OperationMode = 'sejong' | 'military';
+
 export interface SidebarMenu {
   id: string;
   label: string;

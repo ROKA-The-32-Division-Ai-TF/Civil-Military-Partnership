@@ -8,7 +8,9 @@ import {
   CircleUserRound,
   Handshake,
   Landmark,
+  MonitorCog,
   ShieldCheck,
+  type LucideIcon,
 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { AICommandBar } from './components/AICommandBar';
@@ -18,7 +20,7 @@ import { AnalysisPanel } from './components/AnalysisPanel';
 import { ActionChecklist } from './components/ActionChecklist';
 import { DocumentModal } from './components/DocumentModal';
 import { DocumentWorkspace } from './components/DocumentWorkspace';
-import { ExperienceConsole, type OperationMode } from './components/ExperienceConsole';
+import { ExperienceConsole } from './components/ExperienceConsole';
 import { JointActionPlan } from './components/JointActionPlan';
 import { MapBoard } from './components/MapBoard';
 import { ProcessFlow } from './components/ProcessFlow';
@@ -38,6 +40,7 @@ import {
   similarCases,
   type Category,
   type CollaborationRequest,
+  type OperationMode,
   type RecommendationResource,
   type RequestDraftInput,
 } from './data';
@@ -73,16 +76,52 @@ const stats = [
   },
 ];
 
-const operatorModes = [
+const militaryStats = [
   {
-    id: 'civil',
-    label: '세종시 공무원',
+    label: '지원 판단 큐',
+    value: '15건',
+    caption: '승인 전 검토 필요',
+    icon: ShieldCheck,
+    color: '#84CC16',
+  },
+  {
+    label: '가용 자원',
+    value: '42건',
+    caption: '인력·장비 후보',
+    icon: Handshake,
+    color: '#22C55E',
+  },
+  {
+    label: '위험도 검토',
+    value: '9건',
+    caption: '현장·동선·안전 확인',
+    icon: ClipboardCheck,
+    color: '#FACC15',
+  },
+  {
+    label: '지원계획 작성',
+    value: '6건',
+    caption: '협조문서 검토 중',
+    icon: CheckCircle2,
+    color: '#38BDF8',
+  },
+];
+
+const operatorModes: Array<{
+  id: OperationMode;
+  label: string;
+  description: string;
+  icon: LucideIcon;
+}> = [
+  {
+    id: 'sejong',
+    label: '세종시용',
     description: '요청 접수·부서 협의',
     icon: Landmark,
   },
   {
-    id: 'liaison',
-    label: '민군작전장교',
+    id: 'military',
+    label: '군용',
     description: '지원 타당성·자원 검토',
     icon: ShieldCheck,
   },
@@ -331,8 +370,8 @@ function formatToday() {
 
 function App() {
   const [activeMenu, setActiveMenu] = useState('dashboard');
-  const [activeOperator, setActiveOperator] = useState(operatorModes[0].id);
-  const [operationMode, setOperationMode] = useState<OperationMode>('civil');
+  const [activeOperator, setActiveOperator] = useState<OperationMode>('sejong');
+  const [operationMode, setOperationMode] = useState<OperationMode>('sejong');
   const [requests, setRequests] = useState<CollaborationRequest[]>(collaborationRequests);
   const [recommendations, setRecommendations] =
     useState<Record<string, RecommendationResource[]>>(resourceRecommendations);
@@ -361,14 +400,14 @@ function App() {
   const explainRequest = useCallback(
     (request: CollaborationRequest, source = '요청 선택') => {
       const modeDetail =
-        operationMode === 'civil'
+        operationMode === 'sejong'
           ? '세종시 관점에서는 접수 근거, 담당부서, 협력기관 회신 순서를 먼저 정리하면 됩니다.'
           : '군용 관점에서는 지원 타당성, 임무 영향, 장병 안전, 가용 자원 범위를 먼저 판단하면 됩니다.';
 
       triggerAI({
         title: `${source}: ${request.category}`,
         body: `${request.location} 현장입니다. ${modeDetail} 이후 세종시와 협력 군부대의 역할을 분리해 공동 조치안을 만들겠습니다.`,
-        chips: [request.priority, request.category, operationMode === 'civil' ? '행정 조정' : '지원 검토'],
+        chips: [request.priority, request.category, operationMode === 'sejong' ? '행정 조정' : '지원 검토'],
       });
     },
     [operationMode, triggerAI],
@@ -396,8 +435,9 @@ function App() {
 
   const dynamicStats = useMemo(() => {
     const generatedCount = Math.max(0, requests.length - collaborationRequests.length);
+    const baseStats = operationMode === 'sejong' ? stats : militaryStats;
 
-    return stats.map((stat) => {
+    return baseStats.map((stat) => {
       if (stat.label === '전체 요청 건수') {
         return { ...stat, value: `${128 + generatedCount}건` };
       }
@@ -412,7 +452,7 @@ function App() {
 
       return stat;
     });
-  }, [requests.length]);
+  }, [operationMode, requests.length]);
 
   const handleSupportRequest = useCallback(
     (resourceId: string) => {
@@ -437,8 +477,16 @@ function App() {
 
   const handleModeChange = useCallback((mode: OperationMode) => {
     setOperationMode(mode);
-    setActiveOperator(mode === 'civil' ? 'civil' : 'liaison');
-  }, []);
+    setActiveOperator(mode);
+    triggerAI({
+      title: `${mode === 'sejong' ? '세종시용' : '군용'} 화면으로 전환했습니다`,
+      body:
+        mode === 'sejong'
+          ? '시민 요청 접수, 담당부서 검토, 문서 자동화가 먼저 보이도록 행정 화면을 정리했습니다.'
+          : '지원 타당성, 장병 안전, 가용 자원, 임무 영향이 먼저 보이도록 군용 판단 화면을 정리했습니다.',
+      chips: [mode === 'sejong' ? '세종시용' : '군용', '전역 테마', '화면 전환'],
+    });
+  }, [triggerAI]);
 
   const handleMenuSelect = useCallback((menuId: string) => {
     setActiveMenu(menuId);
@@ -620,7 +668,7 @@ function App() {
   ];
 
   const operatorProfile =
-    operationMode === 'civil'
+    operationMode === 'sejong'
       ? {
           name: '세종시 협업담당관',
           detail: '세종특별자치시 · 시민 요청 접수',
@@ -636,30 +684,38 @@ function App() {
         mode={operationMode}
         requests={requests}
         selectedRequest={selectedRequest}
-        onModeChange={handleModeChange}
         onSelectRequest={(requestId) => handleSelectRequest(requestId, '지역문제 스캔')}
-        onOpenRequests={() => {
-          setActiveMenu('requests');
+        onOpenPrimary={() => {
+          setActiveMenu(operationMode === 'sejong' ? 'requests' : 'resources');
           triggerAI({
-            title: '시민 요청 접수 화면을 열었습니다',
-            body: '제목, 기관, 위치만 입력하면 AI가 요청 유형과 협력 필요성을 먼저 분류합니다. 이후 담당부서, 군 협력 검토, 문서 초안까지 이어서 설계합니다.',
-            chips: ['요청 접수', '자동 분류', '협업 설계'],
+            title: operationMode === 'sejong' ? '시민 요청 접수 화면을 열었습니다' : '지원 검토 화면을 열었습니다',
+            body:
+              operationMode === 'sejong'
+                ? '제목, 기관, 위치만 입력하면 AI가 요청 유형과 협력 필요성을 먼저 분류합니다. 이후 담당부서, 군 협력 검토, 문서 초안까지 이어서 설계합니다.'
+                : '가용 자원, 지원 가능일, 현장 안전 확인 항목을 기준으로 지원 타당성을 검토합니다.',
+            chips: operationMode === 'sejong' ? ['요청 접수', '자동 분류', '협업 설계'] : ['지원 타당성', '가용 자원', '장병 안전'],
           });
         }}
         onOpenMap={() => {
           setActiveMenu('analysis');
           triggerAI({
-            title: 'AI 협업 설계 화면을 열었습니다',
-            body: `${selectedRequest.location} 현장을 기준으로 Google 지도, 세종시 조치 범위, 협력 군부대 지원 가능성을 함께 확인합니다.`,
-            chips: ['현장지도', selectedRequest.category, '역할 분담'],
+            title: operationMode === 'sejong' ? 'AI 협업 설계 화면을 열었습니다' : '현장 접근 분석을 열었습니다',
+            body:
+              operationMode === 'sejong'
+                ? `${selectedRequest.location} 현장을 기준으로 Google 지도, 세종시 조치 범위, 협력 군부대 지원 가능성을 함께 확인합니다.`
+                : `${selectedRequest.location} 현장을 기준으로 접근 동선, 장비 진입 가능성, 안전 통제 필요 범위를 먼저 확인합니다.`,
+            chips: operationMode === 'sejong' ? ['현장지도', selectedRequest.category, '역할 분담'] : ['현장 접근', '위험도', '지원 판단'],
           });
         }}
         onOpenDocuments={() => {
           setActiveMenu('documents');
           triggerAI({
-            title: '문서 자동화 화면을 열었습니다',
-            body: '협조공문, 지원계획서, 결과보고서 초안을 같은 요청 기준으로 자동 정리했습니다. 발표 시에는 탭만 바꾸면 흐름이 바로 보입니다.',
-            chips: ['협조공문', '지원계획서', '결과보고서'],
+            title: operationMode === 'sejong' ? '문서 자동화 화면을 열었습니다' : '지원계획서 검토 화면을 열었습니다',
+            body:
+              operationMode === 'sejong'
+                ? '협조공문, 지원계획서, 결과보고서 초안을 같은 요청 기준으로 자동 정리했습니다. 발표 시에는 탭만 바꾸면 흐름이 바로 보입니다.'
+                : '지원계획서와 결과보고서 초안을 기준으로 지원 범위, 안전조치, 투입 자원을 검토합니다.',
+            chips: operationMode === 'sejong' ? ['협조공문', '지원계획서', '결과보고서'] : ['지원계획서', '안전조치', '검토자료'],
             tone: 'success',
           });
         }}
@@ -684,7 +740,9 @@ function App() {
       <div className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.45fr)]">
         <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-panel">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-lg font-black text-civicNavy">협업 요청 현황</h2>
+            <h2 className="text-lg font-black text-civicNavy">
+              {operationMode === 'sejong' ? '협업 요청 현황' : '지원 판단 현황'}
+            </h2>
             <button
               type="button"
               className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-civicNavy"
@@ -733,7 +791,9 @@ function App() {
 
         <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-panel">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-lg font-black text-civicNavy">최근 협업 요청 목록</h2>
+            <h2 className="text-lg font-black text-civicNavy">
+              {operationMode === 'sejong' ? '최근 협업 요청 목록' : '지원 검토 요청 목록'}
+            </h2>
             <button
               type="button"
               onClick={() => handleMenuSelect('requests')}
@@ -783,7 +843,9 @@ function App() {
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.95fr)]">
         <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-panel">
-          <h2 className="text-lg font-black text-civicNavy">협업 단계별 현황</h2>
+          <h2 className="text-lg font-black text-civicNavy">
+            {operationMode === 'sejong' ? '협업 단계별 현황' : '지원 단계별 현황'}
+          </h2>
           <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-5">
             {stageSummary.map(([label, count], index) => (
               <button
@@ -814,7 +876,9 @@ function App() {
         </section>
 
         <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-panel">
-          <h2 className="text-lg font-black text-civicNavy">분야별 요청 현황</h2>
+          <h2 className="text-lg font-black text-civicNavy">
+            {operationMode === 'sejong' ? '분야별 요청 현황' : '지원 분야 현황'}
+          </h2>
           <div className="mt-5 grid gap-3">
             {categorySummary.map(([label, count, ratio, color]) => (
               <button
@@ -846,7 +910,9 @@ function App() {
 
         <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-panel">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-lg font-black text-civicNavy">협력 기관 현황</h2>
+            <h2 className="text-lg font-black text-civicNavy">
+              {operationMode === 'sejong' ? '협력 기관 현황' : '지원 협력 현황'}
+            </h2>
             <button
               type="button"
               onClick={() =>
@@ -896,7 +962,9 @@ function App() {
               <Bot className="h-9 w-9" />
             </div>
             <div>
-              <h2 className="text-lg font-black text-[#173E70]">AI 추천 인사이트</h2>
+              <h2 className="text-lg font-black text-[#173E70]">
+                {operationMode === 'sejong' ? 'AI 추천 인사이트' : 'AI 지원 인사이트'}
+              </h2>
               <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 {aiInsights.map(([title, detail, action]) => (
                   <button
@@ -1062,7 +1130,7 @@ function App() {
                   type="button"
                   onClick={() => {
                     setActiveOperator(mode.id);
-                    setOperationMode(mode.id === 'civil' ? 'civil' : 'military');
+                    handleModeChange(mode.id);
                     triggerAI({
                       title: `${mode.label} 관점 적용`,
                       body: `${mode.description} 중심으로 보겠습니다. 같은 요청도 담당 역할에 맞춰 문서, 자원, 검토 순서를 다르게 잡아드릴게요.`,
@@ -1123,19 +1191,23 @@ function App() {
                     : dashboardView;
 
   return (
-    <div className="min-h-screen bg-[#F4F7FB] text-slate-900">
+    <div className={`app-shell app-shell--${operationMode} min-h-screen text-slate-900`}>
       <div className="flex min-h-screen flex-col lg:flex-row">
-        <Sidebar activeMenu={activeMenu} onMenuSelect={handleMenuSelect} />
+        <Sidebar activeMenu={activeMenu} onMenuSelect={handleMenuSelect} mode={operationMode} />
 
-        <main className="min-w-0 flex-1">
-          <header className="border-b border-slate-200 bg-white px-5 py-4 sm:px-7 lg:px-8">
+        <main className="app-main min-w-0 flex-1">
+          <header className="app-header border-b px-5 py-4 sm:px-7 lg:px-8">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <h1 className="text-2xl font-black text-slate-950">
-                  여민군 AI 협업관제센터
+                <h1 className="app-title text-2xl font-black">
+                  {operationMode === 'sejong'
+                    ? '여민군 AI 협업관제센터'
+                    : '여민군 AI 지원판단센터'}
                 </h1>
-                <p className="mt-1 text-sm font-medium text-slate-500">
-                  시민 요청부터 AI 협업 설계, 군 지원 검토, 문서 자동화까지 한 화면에서 처리합니다.
+                <p className="app-subtitle mt-1 text-sm font-medium">
+                  {operationMode === 'sejong'
+                    ? '시민 요청부터 AI 협업 설계, 군 지원 검토, 문서 자동화까지 한 화면에서 처리합니다.'
+                    : '지원 타당성, 가용 자원, 장병 안전, 임무 영향을 한 화면에서 판단합니다.'}
                 </p>
               </div>
 
@@ -1143,7 +1215,7 @@ function App() {
                 <button
                   type="button"
                   onClick={() => handleMenuSelect('alerts')}
-                  className="relative flex h-11 w-11 items-center justify-center rounded-full bg-[#F5F7FE] text-civicNavy transition hover:bg-[#EEF3FF]"
+                  className="app-icon-button relative flex h-11 w-11 items-center justify-center rounded-full transition"
                   aria-label="알림"
                 >
                   <Bell className="h-5 w-5" />
@@ -1161,33 +1233,60 @@ function App() {
                       chips: ['운용자 관점', '업무 설정', '화면 전환'],
                     });
                   }}
-                  className="flex items-center gap-3 rounded-lg px-2 py-1 text-left transition hover:bg-[#F5F7FE]"
+                  className="app-user-button flex items-center gap-3 rounded-lg px-2 py-1 text-left transition"
                 >
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#EEF3FF] text-[#3157B7]">
+                  <div className="app-user-avatar flex h-11 w-11 items-center justify-center rounded-full">
                     <CircleUserRound className="h-6 w-6" aria-hidden="true" />
                   </div>
                   <div>
-                    <p className="text-sm font-black text-civicNavy">{operatorProfile.name}</p>
-                    <p className="text-xs font-semibold text-slate-500">
+                    <p className="app-user-name text-sm font-black">{operatorProfile.name}</p>
+                    <p className="app-user-detail text-xs font-semibold">
                       {operatorProfile.detail}
                     </p>
                   </div>
-                  <ChevronDown className="h-4 w-4 text-slate-400" />
+                  <ChevronDown className="app-muted-icon h-4 w-4" />
                 </button>
                 <button
                   type="button"
                   onClick={() => {
-                    setActiveMenu('requests');
+                    setActiveMenu(operationMode === 'sejong' ? 'requests' : 'resources');
                     triggerAI({
-                      title: '새 요청 접수 준비',
-                      body: '요청 제목, 기관, 위치만 넣어주세요. 유형 분류, 필요 자원, 협력 흐름은 제가 바로 초안으로 잡겠습니다.',
-                      chips: ['요청 접수', '자동 분류', '분석 생성'],
+                      title: operationMode === 'sejong' ? '새 요청 접수 준비' : '지원 판단 큐 확인',
+                      body:
+                        operationMode === 'sejong'
+                          ? '요청 제목, 기관, 위치만 넣어주세요. 유형 분류, 필요 자원, 협력 흐름은 제가 바로 초안으로 잡겠습니다.'
+                          : '가용 자원과 안전 확인 항목을 기준으로 지원 판단 큐를 정리합니다.',
+                      chips: operationMode === 'sejong' ? ['요청 접수', '자동 분류', '분석 생성'] : ['지원 판단', '가용 자원', '안전 확인'],
                     });
                   }}
-                  className="rounded-lg bg-civicNavy px-4 py-3 text-sm font-bold text-white transition hover:bg-[#12395F]"
+                  className="app-primary-button rounded-lg px-4 py-3 text-sm font-bold transition"
                 >
-                  새 요청 접수
+                  {operationMode === 'sejong' ? '새 요청 접수' : '지원 판단 큐'}
                 </button>
+                <div className="mode-switch" aria-label="운용 화면 전환">
+                  <span className="mode-switch-label">
+                    <MonitorCog className="h-3.5 w-3.5" aria-hidden="true" />
+                    화면 전환
+                  </span>
+                  <div className="mode-switch-options">
+                    {operatorModes.map((mode) => {
+                      const ModeIcon = mode.icon;
+                      const active = operationMode === mode.id;
+
+                      return (
+                        <button
+                          key={mode.id}
+                          type="button"
+                          onClick={() => handleModeChange(mode.id)}
+                          className={active ? 'is-active' : ''}
+                        >
+                          <ModeIcon className="h-4 w-4" aria-hidden="true" />
+                          {mode.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
           </header>

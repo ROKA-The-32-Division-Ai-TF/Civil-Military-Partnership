@@ -46,7 +46,7 @@ export function AICommandBar({
   const primaryResource = resources[0]?.name ?? request.neededResources[0] ?? '자원 검토';
 
   return (
-    <section className="mb-5 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-panel">
+    <section className="mode-panel mb-5 overflow-hidden rounded-lg border shadow-panel">
       <div className="grid gap-3 p-3.5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
         <div className="flex min-w-0 items-start gap-3">
           <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#EAF4EF] text-publicGreen ring-1 ring-emerald-100">
@@ -55,7 +55,7 @@ export function AICommandBar({
           </div>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="text-[11px] font-black uppercase tracking-[0.14em] text-publicGreen">
+              <p className="mode-accent-text text-[11px] font-black uppercase tracking-[0.14em]">
                 AI 공동판단
               </p>
               <span className="rounded-full bg-[#EAF4EF] px-2 py-0.5 text-[11px] font-black text-publicGreen">
@@ -65,13 +65,13 @@ export function AICommandBar({
                 {request.priority}
               </span>
             </div>
-            <h2 className="mt-1 text-sm font-black leading-5 text-civicNavy">
+            <h2 className="mode-title-text mt-1 text-sm font-black leading-5">
               {request.title}
             </h2>
-            <p className="mt-1 text-xs font-semibold leading-5 text-slate-600">
+            <p className="mode-body-text mt-1 text-xs font-semibold leading-5">
               {message.title} · {message.body}
             </p>
-            <p className="mt-1 text-xs font-semibold leading-4 text-slate-500">
+            <p className="mode-subtext mt-1 text-xs font-semibold leading-4">
               추천 자원: {primaryResource}
             </p>
           </div>
@@ -86,16 +86,16 @@ export function AICommandBar({
                 key={item.id}
                 type="button"
                 onClick={() => onCommand(item.id)}
-                className="group flex min-w-0 items-center gap-2 rounded-lg border border-slate-200 bg-[#FBFCFA] px-3 py-2 text-left transition hover:border-[#8CB4FF] hover:bg-white"
+                className="mode-command-button group flex min-w-0 items-center gap-2 rounded-lg border px-3 py-2 text-left transition"
               >
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-[#2563EB] ring-1 ring-blue-100 group-hover:bg-[#EEF3FF]">
                   <Icon className="h-4 w-4" aria-hidden="true" />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-bold leading-5 text-civicNavy">
+                  <span className="mode-title-text block text-sm font-bold leading-5">
                     {item.label}
                   </span>
-                  <span className="mt-0.5 block text-[11px] font-semibold leading-4 text-slate-500">
+                  <span className="mode-subtext mt-0.5 block text-[11px] font-semibold leading-4">
                     {item.detail}
                   </span>
                 </span>

@@ -47,14 +47,14 @@ export function AIOperationPanel({ request, onExplain }: AIOperationPanelProps) 
   const ActiveIcon = aiSteps[activeStep].icon;
 
   return (
-    <section className="overflow-hidden rounded-lg border border-[#DDEBE3] bg-white p-5 shadow-panel">
+    <section className="mode-panel overflow-hidden rounded-lg border p-5 shadow-panel">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-publicGreen">
+          <p className="mode-accent-text text-xs font-bold uppercase tracking-[0.16em]">
             AI 협업 엔진
           </p>
-          <h2 className="mt-2 text-lg font-bold text-civicNavy">분석 실행 중</h2>
-          <p className="mt-1 text-sm leading-6 text-slate-500">
+          <h2 className="mode-title-text mt-2 text-lg font-bold">분석 실행 중</h2>
+          <p className="mode-subtext mt-1 text-sm leading-6">
             {request.category} 요청을 기준으로 공동 조치안을 갱신하고 있습니다.
           </p>
         </div>
@@ -64,16 +64,16 @@ export function AIOperationPanel({ request, onExplain }: AIOperationPanelProps) 
         </div>
       </div>
 
-      <div className="mt-5 rounded-lg border border-slate-200 bg-[#FBFCFA] p-4">
+      <div className="mode-card-soft mt-5 rounded-lg border p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-bold text-civicNavy">{aiSteps[activeStep].label}</p>
-            <p className="mt-1 text-xs leading-5 text-slate-500">
+            <p className="mode-title-text text-sm font-bold">{aiSteps[activeStep].label}</p>
+            <p className="mode-subtext mt-1 text-xs leading-5">
               {aiSteps[activeStep].detail}
             </p>
           </div>
           <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-publicGreen ring-1 ring-emerald-100">
-            가동 중
+            분석 중
           </span>
         </div>
         <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
@@ -104,8 +104,8 @@ export function AIOperationPanel({ request, onExplain }: AIOperationPanelProps) 
               }}
               className={`flex w-full items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition ${
                 active
-                  ? 'border-publicGreen bg-[#F4FAF7]'
-                  : 'border-slate-200 bg-white hover:border-publicGreen/60 hover:bg-[#F8FCFA]'
+                  ? 'mode-step-active'
+                  : 'mode-command-button'
               }`}
             >
               <div
@@ -120,8 +120,8 @@ export function AIOperationPanel({ request, onExplain }: AIOperationPanelProps) 
                 )}
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-bold leading-5 text-civicNavy">{step.label}</p>
-                <p className="text-xs leading-4 text-slate-500">{step.detail}</p>
+                <p className="mode-title-text text-sm font-bold leading-5">{step.label}</p>
+                <p className="mode-subtext text-xs leading-4">{step.detail}</p>
               </div>
             </button>
           );
